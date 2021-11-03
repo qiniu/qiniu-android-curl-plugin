@@ -3,7 +3,11 @@ package com.qiniu.client.curl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import android.util.Log;
+import android.app.Activity;
+
+
+import androidx.test.ext.junit.rules.ActivityScenarioRule;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.qiniu.android.http.ResponseInfo;
 import com.qiniu.android.http.metrics.UploadSingleRequestMetrics;
@@ -11,9 +15,22 @@ import com.qiniu.android.http.request.IRequestClient;
 import com.qiniu.android.http.request.Request;
 
 import org.json.JSONObject;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
+@RunWith(AndroidJUnit4.class)
 public class CurlTest extends BaseTest {
+    @Rule
+    public ActivityScenarioRule<MainActivity> mActivityRule = new ActivityScenarioRule<>(
+            MainActivity.class);
+
+    @Before
+    public void setup() {
+        System.out.println("\n=== curl test before");
+    }
 
     @Test
     public void requestGet() {
@@ -39,6 +56,11 @@ public class CurlTest extends BaseTest {
 
         assertTrue("response was null" , res[0] != null);
         assertEquals("response:" + res[0], 200, res[0].statusCode);
+    }
+
+    @After
+    public void completed() {
+        System.out.println("=== curl test completed");
     }
 }
 
