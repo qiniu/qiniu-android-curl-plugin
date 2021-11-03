@@ -105,21 +105,21 @@ int CurlDebugCallback(CURL *curl, curl_infotype infoType, char *info, size_t inf
 
 size_t CurlReceiveHeaderCallback(char *buffer, size_t size, size_t nitems, void *userData) {
     const size_t sizeInBytes = size * nitems;
-    struct CurlContext *curlContext = (struct CurlContext *) userData;
+    auto *curlContext = (struct CurlContext *) userData;
     curlContext->responseHeaderFields = curl_slist_append(curlContext->responseHeaderFields, buffer);
     return sizeInBytes;
 }
 
 size_t CurlReadCallback(void *ptr, size_t size, size_t nmemb, void *userData) {
     size_t sizeInBytes = size * nmemb;
-    struct CurlContext *curlContext = (struct CurlContext *) userData;
+    auto *curlContext = (struct CurlContext *) userData;
     sizeInBytes = sendData(curlContext, (char *) ptr, sizeInBytes);
     return sizeInBytes;
 }
 
 size_t CurlWriteCallback(char *ptr, size_t size, size_t nmemb, void *userData) {
     const size_t sizeInBytes = size * nmemb;
-    struct CurlContext *curlContext = (struct CurlContext *) userData;
+    auto *curlContext = (struct CurlContext *) userData;
     return receiveData(curlContext, ptr, sizeInBytes);
 }
 
@@ -127,19 +127,18 @@ int CurlProgressCallback(void *client, double downloadTotal, double downloadNow,
                          double uploadNow) {
     struct CurlContext *curlContext = (struct CurlContext *) client;
 
-    curlContext->totalBytesExpectedToSend = uploadTotal;
-    long long sendBodyLength = (long long) (uploadNow - curlContext->totalBytesSent);
+    curlContext->totalBytesExpectedToSend = (long long) uploadTotal;
+    auto sendBodyLength = (long long) ((long long) uploadNow - curlContext->totalBytesSent);
+    curlContext->totalBytesSent = (long long) uploadNow;
     if (sendBodyLength > 0) {
-        curlContext->totalBytesSent = uploadNow;
         sendProgress(curlContext, sendBodyLength, (long long) uploadNow, (long long) uploadTotal);
     }
 
-    curlContext->totalBytesExpectedToReceive = downloadTotal;
-    long long receiveBodyLength = (long long) (downloadNow - curlContext->totalBytesReceive);
+    curlContext->totalBytesExpectedToReceive = (long long) downloadTotal;
+    auto receiveBodyLength = (long long) ((long long) downloadNow - curlContext->totalBytesReceive);
+    curlContext->totalBytesReceive = (long long) downloadNow;
     if (receiveBodyLength > 0) {
-        curlContext->totalBytesReceive = downloadNow;
-        receiveProgress(curlContext, receiveBodyLength, (long long) downloadNow,
-                        (long long) downloadTotal);
+        receiveProgress(curlContext, receiveBodyLength, (long long) downloadNow, (long long) downloadTotal);
     }
 
     if (curlJavaIsCancel(curlContext)) {
@@ -257,9 +256,9 @@ initCurlRequestMethodAndRequestData(CURL *curl, struct CurlContext *curlContext,
     long long totalBytesExpectedToSend = curlContext->totalBytesExpectedToSend;
     int httpMethod = curlContext->requestMethod;
     if (httpMethod == Curl_Request_Http_Method_HEAD) {
-        qn_curl_easy_setopt(curl, CURLOPT_NOBODY, 1, errorCode, errorInfo, "POST Option set error");
+        qn_curl_easy_setopt(curl, CURLOPT_NOBODY, 1, errorCode, errorInfo, "HEAD Option set error");
     } else if (httpMethod == Curl_Request_Http_Method_GET) {
-        qn_curl_easy_setopt(curl, CURLOPT_HTTPGET, 1, errorCode, errorInfo, "POST Option set error");
+        qn_curl_easy_setopt(curl, CURLOPT_HTTPGET, 1, errorCode, errorInfo, "GET Option set error");
     } else if (httpMethod == Curl_Request_Http_Method_POST) {
         qn_curl_easy_setopt(curl, CURLOPT_POST, 1, errorCode, errorInfo, "POST Option set error");
         if (totalBytesExpectedToSend > 0) {
@@ -441,6 +440,10 @@ extern "C" JNIEXPORT void JNICALL Java_com_qiniu_client_curl_Curl_requestNative(
     curlContext.curlHandler = curlHandler;
     curlContext.responseHeaderFields = NULL;
     curlContext.metrics = createJavaMetrics(&curlContext);
+    curlContext.totalBytesSent = 0;
+    curlContext.totalBytesReceive = 0;
+    curlContext.totalBytesExpectedToSend = 0;
+    curlContext.totalBytesExpectedToReceive = 0;
 
     setCurlContextWithRequest(env, &curlContext, curlRequest);
     setCurlContextWithConfiguration(env, &curlContext, configure);

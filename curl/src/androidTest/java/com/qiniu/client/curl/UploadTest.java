@@ -4,8 +4,6 @@ import static org.junit.Assert.assertTrue;
 
 import android.util.Log;
 
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-
 import com.qiniu.android.common.FixedZone;
 import com.qiniu.android.http.ResponseInfo;
 import com.qiniu.android.http.dns.Dns;
@@ -35,7 +33,6 @@ import java.util.Date;
 import java.util.List;
 
 
-@RunWith(AndroidJUnit4.class)
 public class UploadTest extends BaseTest {
 
     private static final String TestHost0 = "upload-z0.qbox.me";
