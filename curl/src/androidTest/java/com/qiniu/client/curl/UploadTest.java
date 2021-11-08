@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-
 public class UploadTest extends BaseTest {
 
     private static final String TestHost0 = "upload-z0.qbox.me";

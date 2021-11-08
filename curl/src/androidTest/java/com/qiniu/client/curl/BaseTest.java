@@ -1,7 +1,7 @@
 package com.qiniu.client.curl;
 
 
-import androidx.test.ext.junit.runners.AndroidJUnit4;
+//import android.test.AndroidTestCase;
 
 import org.junit.After;
 import org.junit.Before;
