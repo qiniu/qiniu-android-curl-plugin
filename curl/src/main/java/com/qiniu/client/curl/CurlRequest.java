@@ -1,7 +1,5 @@
 package com.qiniu.client.curl;
 
-import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +34,7 @@ class CurlRequest {
         } else {
             this.httpVersion = HttpVersionCurlMatch;
         }
-        this.allHeaders = (allHeaders != null) ? allHeaders : new HashMap<String, String>();
+        this.allHeaders = (allHeaders != null) ? allHeaders : new HashMap<>();
         this.httpBody = (httpBody != null) ? httpBody : new byte[0];
         this.timeout = timeout;
     }
@@ -59,17 +57,15 @@ class CurlRequest {
 
     String[] getAllHeaderList() {
         String[] headerArray = new String[]{};
-        if (allHeaders != null) {
-            ArrayList<String> headerList = new ArrayList<>();
-            for (String headerKey : allHeaders.keySet()) {
-                String headerValue = allHeaders.get(headerKey);
-                String header = headerKey + ": " + headerValue;
-                headerList.add(header);
-            }
-            headerList.add("Expect: null");
-            headerArray = headerList.toArray(new String[]{});
-
+        ArrayList<String> headerList = new ArrayList<>();
+        for (String headerKey : allHeaders.keySet()) {
+            String headerValue = allHeaders.get(headerKey);
+            String header = headerKey + ": " + headerValue;
+            headerList.add(header);
         }
+        headerList.add("Expect: null");
+        headerArray = headerList.toArray(new String[]{});
+
         return headerArray;
     }
 

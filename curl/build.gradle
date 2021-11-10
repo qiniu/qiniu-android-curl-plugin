@@ -37,6 +37,12 @@ android {
         }
     }
 
+    sourceSets.main {
+        assets.srcDirs = ['src/main/assets']
+        jni.srcDirs = []
+        jniLibs.srcDirs = ['src/main/jni']
+    }
+
     repositories {
         mavenLocal()
     }

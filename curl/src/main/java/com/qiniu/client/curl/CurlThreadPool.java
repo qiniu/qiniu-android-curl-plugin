@@ -5,7 +5,7 @@ import java.util.concurrent.Executors;
 
 class CurlThreadPool {
 
-    private static final ExecutorService executorService = Executors.newScheduledThreadPool(1);
+    private static final ExecutorService executorService = Executors.newScheduledThreadPool(6);
 
     static void run(Runnable r){
         executorService.submit(r);

@@ -70,6 +70,7 @@ class CurlUtils {
             mAssets.read(data);
             mAssets.close();
         } catch (IOException e) {
+            e.printStackTrace();
             return false;
         }
 

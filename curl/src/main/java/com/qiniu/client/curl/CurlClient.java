@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
 
-public class CurlClient implements IRequestClient {
+public class CurlClient extends IRequestClient {
 
     private Curl curl = null;
     private Request request = null;
@@ -44,8 +44,8 @@ public class CurlClient implements IRequestClient {
             CurlConfiguration.DnsResolver resolver = new CurlConfiguration.DnsResolver(host, ip, port);
             builder.setDnsResolverArray(new CurlConfiguration.DnsResolver[]{resolver});
 
-            metrics.remoteAddress = ip;
-            metrics.remotePort = port;
+            metrics.setRemoteAddress(ip);
+            metrics.setRemotePort(port);
         }
         if (connectionProxy != null && connectionProxy.hostAddress != null) {
             String proxy = String.format(Locale.ENGLISH, "%s:%d", connectionProxy.hostAddress, connectionProxy.port);
@@ -105,7 +105,7 @@ public class CurlClient implements IRequestClient {
             public void receiveResponse(CurlResponse response) {
                 curlResponse = response;
                 if (response != null) {
-                    metrics.httpVersion = response.httpVersion;
+                    metrics.setHttpVersion(response.httpVersion);
                 }
                 Log.d("Curl", "====== Response: url:" + response.getUrl() + " statusCode:" + response.getStatusCode() + " headerInfo:" + response.getAllHeaderFields());
             }
@@ -114,7 +114,7 @@ public class CurlClient implements IRequestClient {
             public byte[] sendData(long dataLength) {
                 // 设置了 body 不需要在设置 此回调
                 Log.d("Curl", "====== sendData:");
-                byte[] data = new byte[(int)dataLength];
+                byte[] data = new byte[(int) dataLength];
                 try {
                     int length = requestDataStream.read(data);
                     data = Arrays.copyOf(data, length);
@@ -182,31 +182,31 @@ public class CurlClient implements IRequestClient {
             @Override
             public void didFinishCollectingMetrics(CurlTransactionMetrics transactionMetrics) {
                 metrics.end();
-                metrics.clientName = "Curl";
-                metrics.clientVersion = config.version;
+                metrics.setClientName("qn-curl");
+                metrics.setClientVersion(config.version);
                 if (transactionMetrics != null) {
-                    metrics.countOfRequestHeaderBytesSent = transactionMetrics.getCountOfRequestHeaderBytesSent();
-                    metrics.countOfRequestBodyBytesSent = transactionMetrics.getCountOfRequestBodyBytesSent();
-                    metrics.countOfResponseHeaderBytesReceived = transactionMetrics.getCountOfResponseHeaderBytesReceived();
-                    metrics.countOfResponseBodyBytesReceived = transactionMetrics.getCountOfResponseBodyBytesReceived();
+                    metrics.setCountOfRequestHeaderBytesSent(transactionMetrics.getCountOfRequestHeaderBytesSent());
+                    metrics.setCountOfRequestBodyBytesSent(transactionMetrics.getCountOfRequestBodyBytesSent());
+                    metrics.setCountOfResponseHeaderBytesReceived(transactionMetrics.getCountOfResponseHeaderBytesReceived());
+                    metrics.setCountOfResponseBodyBytesReceived(transactionMetrics.getCountOfResponseBodyBytesReceived());
                     if (transactionMetrics.getRemoteAddress() != null && transactionMetrics.getRemoteAddress().length() > 0) {
-                        metrics.remoteAddress = transactionMetrics.getRemoteAddress();
+                        metrics.setRemoteAddress(transactionMetrics.getRemoteAddress());
                     }
                     if (transactionMetrics.getRemotePort() > 0) {
-                        metrics.remotePort = (int) transactionMetrics.getRemotePort();
+                        metrics.setRemotePort((int) transactionMetrics.getRemotePort());
                     }
-                    metrics.localAddress = transactionMetrics.getLocalAddress();
-                    metrics.localPort = (int) transactionMetrics.getLocalPort();
-                    metrics.requestStartDate = transactionMetrics.getRequestStartDate();
-                    metrics.requestEndDate = transactionMetrics.getRequestEndDate();
-                    metrics.domainLookupStartDate = transactionMetrics.getDnsStartDate();
-                    metrics.domainLookupEndDate = transactionMetrics.getDnsEndDate();
-                    metrics.connectStartDate = transactionMetrics.getConnectStartDate();
-                    metrics.connectEndDate = transactionMetrics.getConnectEndDate();
-                    metrics.secureConnectionStartDate = transactionMetrics.getSecureConnectionStartDate();
-                    metrics.secureConnectionEndDate = transactionMetrics.getSecureConnectionEndDate();
-                    metrics.responseStartDate = transactionMetrics.getResponseStartDate();
-                    metrics.responseEndDate = transactionMetrics.getResponseEndDate();
+                    metrics.setLocalAddress(transactionMetrics.getLocalAddress());
+                    metrics.setLocalPort((int) transactionMetrics.getLocalPort());
+                    metrics.setRequestStartDate(transactionMetrics.getRequestStartDate());
+                    metrics.setRequestEndDate(transactionMetrics.getRequestEndDate());
+                    metrics.setDomainLookupStartDate(transactionMetrics.getDnsStartDate());
+                    metrics.setDomainLookupEndDate(transactionMetrics.getDnsEndDate());
+                    metrics.setConnectStartDate(transactionMetrics.getConnectStartDate());
+                    metrics.setConnectEndDate(transactionMetrics.getConnectEndDate());
+                    metrics.setSecureConnectionStartDate(transactionMetrics.getSecureConnectionStartDate());
+                    metrics.setSecureConnectionEndDate(transactionMetrics.getSecureConnectionEndDate());
+                    metrics.setResponseStartDate(transactionMetrics.getResponseStartDate());
+                    metrics.setResponseEndDate(transactionMetrics.getResponseEndDate());
                 }
                 Log.d("Curl", "====== didFinishCollectingMetrics metrics:" + metrics);
             }
