@@ -7,8 +7,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 
-class CurlUtils {
+public class CurlUtils {
+
+    private static String customizedCaPath = null;
 
     static Context applicationContext() {
         try {
@@ -26,7 +30,17 @@ class CurlUtils {
     }
 
     static  String sdkDirectory(){
-        String directory = applicationContext().getCacheDir().getAbsolutePath() + "/qiniu/curl";
+        Context context = applicationContext();
+        if (context == null) {
+            return null;
+        }
+
+        File cacheDir = context.getCacheDir();
+        if (cacheDir == null) {
+            return null;
+        }
+
+        String directory = cacheDir.getAbsolutePath() + "/qiniu/curl";
         File f = new File(directory);
         if (!f.exists() && !f.mkdirs()) {
             directory = null;
@@ -34,8 +48,22 @@ class CurlUtils {
         return directory;
     }
 
+    public static synchronized String getCAPath(){
+        if (customizedCaPath != null) {
+            File caFile = new File(customizedCaPath);
+            if (caFile.exists()){
+                return customizedCaPath;
+            }
+        }
 
-    synchronized static String getCAPath(){
+        return getDefaultCAPath();
+    }
+
+    public static synchronized void setCaPath(String caPath) {
+        customizedCaPath = caPath;
+    }
+
+    synchronized static String getDefaultCAPath(){
         String sdkDir = sdkDirectory();
 
         File caFile = new File(sdkDir, "cacert.pem");

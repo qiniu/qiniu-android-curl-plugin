@@ -3,6 +3,7 @@ package com.qiniu.client.curl;
 
 //import android.test.AndroidTestCase;
 
+import org.apache.http.params.HttpParams;
 import org.junit.After;
 import org.junit.Before;
 
@@ -25,6 +26,11 @@ public class BaseTest {
         System.out.println("=== base test completed");
     }
 
+    public void a() {
+        HttpParams params = null;
+//        HttpClient client = new DefaultHttpClient()
+
+    }
 
     /**
      * waitCondition: 等待条件

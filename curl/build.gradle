@@ -83,15 +83,22 @@ task generateSourcesJar(type: Jar) {
     classifier 'sources'
 }
 
+task generateResourceJar(type: Jar) {
+    group = 'jar'
+    archiveClassifier.set('resource')
+    from('./resource')
+}
+
 task generateSoJar(type: Jar) {
     group = 'jar'
     archiveClassifier.set('so')
     from('./so_libs')
 }
 
-task generateMergeJar(type: Jar, dependsOn:['generateSoJar', 'generateSourcesJar']) {
+task generateMergeJar(type: Jar, dependsOn:['generateSoJar', 'generateSourcesJar', 'generateResourceJar']) {
     group = 'jar'
     from(project.zipTree('build/libs/curl-so.jar'))
+    from(project.zipTree('build/libs/curl-resource.jar'))
     from(project.zipTree('build/intermediates/aar_main_jar/release/classes.jar'))
 }
 

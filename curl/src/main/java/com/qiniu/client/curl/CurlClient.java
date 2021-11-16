@@ -220,6 +220,11 @@ public class CurlClient extends IRequestClient {
         }
     }
 
+    @Override
+    public String getClientId() {
+        return "qn-curl";
+    }
+
     private void releaseResource() {
         if (requestDataStream != null) {
             try {
