@@ -28,12 +28,20 @@ public class CurlClient extends IRequestClient {
     private ByteArrayOutputStream responseDataStream = null;
 
     @Override
-    public void request(final Request request,
-                        IUploadServer server,
-                        boolean isAsync,
-                        ProxyConfiguration connectionProxy,
-                        final RequestClientProgress progress,
-                        final RequestClientCompleteHandler complete) {
+    public void request(Request request,
+                        Options options,
+                        RequestClientProgress progress,
+                        RequestClientCompleteHandler complete) {
+
+        IUploadServer server = null;
+        ProxyConfiguration connectionProxy = null;
+        boolean isAsync = true;
+        if (options != null) {
+            server = options.server;
+            connectionProxy = options.connectionProxy;
+            isAsync = options.isAsync;
+        }
+
         this.request = request;
 
         String host = server != null ? server.getHost() : null;

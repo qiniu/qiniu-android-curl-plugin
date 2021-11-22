@@ -7,7 +7,6 @@
 #include "curl_configuration.h"
 #include "curl_request.h"
 #include "curl_jni_call_back.h"
-#include "curl_utils.h"
 #include "curl_error.h"
 
 #include <jni.h>
@@ -155,13 +154,12 @@ void initCurlRequestDefaultOptions(CURL *curl, struct CurlContext *curlContext, 
     curl_easy_setopt(curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
 
     curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 10L);
-    curl_easy_setopt(curl, CURLOPT_SERVER_RESPONSE_TIMEOUT, 15L);
     curl_easy_setopt(curl, CURLOPT_ACCEPTTIMEOUT_MS, 5000L);
     curl_easy_setopt(curl, CURLOPT_HAPPY_EYEBALLS_TIMEOUT_MS, 300L);
 
     curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 1L);
     curl_easy_setopt(curl, CURLOPT_TCP_KEEPIDLE, 10L);
-    curl_easy_setopt(curl, CURLOPT_TCP_KEEPINTVL, 10L);
+    curl_easy_setopt(curl, CURLOPT_TCP_KEEPINTVL, 2L);
     curl_easy_setopt(curl, CURLOPT_TCP_FASTOPEN, 1L);
 
   //  curl_easy_setopt(curl, CURLOPT_MAXCONNECTS, 0L);
@@ -266,12 +264,11 @@ initCurlRequestMethodAndRequestData(CURL *curl, struct CurlContext *curlContext,
                                 "body length set error");
 //        qn_curl_easy_setopt(curl, CURLOPT_POSTFIELDS, curlUtilConvertJByteArrayToChars(curlContext->env, curlContext->body), errorCode, errorInfo,
 //                            "body set error");
-            qn_curl_easy_setopt(curl, CURLOPT_READFUNCTION, CurlReadCallback, errorCode, errorInfo,
-                                "read function set 1 error");
-            qn_curl_easy_setopt(curl, CURLOPT_READDATA, curlContext, errorCode, errorInfo,
-                                "read function set 2 error");
         }
-
+        qn_curl_easy_setopt(curl, CURLOPT_READFUNCTION, CurlReadCallback, errorCode, errorInfo,
+                            "read function set 1 error");
+        qn_curl_easy_setopt(curl, CURLOPT_READDATA, curlContext, errorCode, errorInfo,
+                            "read function set 2 error");
     } else if (httpMethod == Curl_Request_Http_Method_PUT) {
         qn_curl_easy_setopt(curl, CURLOPT_UPLOAD, 1, errorCode, errorInfo,
                          "PUT Option set error");
@@ -279,11 +276,11 @@ initCurlRequestMethodAndRequestData(CURL *curl, struct CurlContext *curlContext,
             qn_curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE, totalBytesExpectedToSend, errorCode,
                                 errorInfo,
                                 "body length set error");
-            qn_curl_easy_setopt(curl, CURLOPT_READFUNCTION, CurlReadCallback, errorCode, errorInfo,
-                                "read function set 1 error");
-            qn_curl_easy_setopt(curl, CURLOPT_READDATA, curlContext, errorCode, errorInfo,
-                                "read function set 2 error");
         }
+        qn_curl_easy_setopt(curl, CURLOPT_READFUNCTION, CurlReadCallback, errorCode, errorInfo,
+                            "read function set 1 error");
+        qn_curl_easy_setopt(curl, CURLOPT_READDATA, curlContext, errorCode, errorInfo,
+                            "read function set 2 error");
     } else if (httpMethod == Curl_Request_Http_Method_DELETE) {
         qn_curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE", errorCode, errorInfo,
                             "DELETE Option set error");
@@ -461,16 +458,13 @@ extern "C" JNIEXPORT void JNICALL Java_com_qiniu_client_curl_Curl_requestNative(
     if (errorInfo != NULL) {
         goto curl_perform_complete_error;
     }
-//    kCurlLogD("== Curl Debug: 1");
     initCurlRequestCustomOptions(curl, &curlContext);
 
-//    kCurlLogD("== Curl Debug: 2");
     initCurlRequestDownloadData(curl, &curlContext, &errorCode,
                                 reinterpret_cast<const char **>(&errorInfo));
     if (errorInfo != NULL) {
         goto curl_perform_complete_error;
     }
-//    kCurlLogD("== Curl Debug: 3");
     initCurlDnsResolver(curl, &curlContext);
     initCurlRequestProxy(curl, &curlContext);
     initCurlRequestHeader(curl, &curlContext, &errorCode,
@@ -478,26 +472,21 @@ extern "C" JNIEXPORT void JNICALL Java_com_qiniu_client_curl_Curl_requestNative(
     if (errorInfo != NULL) {
         goto curl_perform_complete_error;
     }
-//    kCurlLogD("== Curl Debug: 4");
     initCurlRequestUrl(curl, &curlContext, &errorCode, reinterpret_cast<const char **>(&errorInfo));
     if (errorInfo != NULL) {
         goto curl_perform_complete_error;
     }
-//    kCurlLogD("== Curl Debug: 5");
     initCurlRequestMethodAndRequestData(curl, &curlContext, &errorCode, reinterpret_cast<const char **>(&errorInfo));
     if (errorInfo != NULL) {
         goto curl_perform_complete_error;
     }
-//    kCurlLogD("== Curl Debug: 6");
 
     performRequest(curl, &errorCode, reinterpret_cast<const char **>(&errorInfo));
 
-//    kCurlLogD("== Curl Debug: 7");
     handleResponse(&curlContext, curl);
 
     curl_perform_complete_error:
     handleMetrics(&curlContext, curl);
-//    kCurlLogD("== Curl Debug: 8    error code:%d %s", errorCode, errorInfo);
 
     completeWithError(&curlContext, transformCurlStatusCode(errorCode), reinterpret_cast<const char *>(&errorInfo));
 

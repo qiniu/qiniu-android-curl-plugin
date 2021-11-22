@@ -6,9 +6,8 @@
 #include <string.h>
 #include "curl_jni_call_back.h"
 #include "curl_context.h"
-#include "curl_utils.h"
 
-void receiveResponse(CurlContext *curlContext, char *url, int statusCode, char *httPVersion,
+void receiveResponse(CurlContext *curlContext, char *url, int statusCode, char *httpVersion,
                      struct curl_slist *headerFields) {
     if (curlContext == NULL) {
         return;
@@ -34,14 +33,14 @@ void receiveResponse(CurlContext *curlContext, char *url, int statusCode, char *
     }
 
     jstring url_string = NULL;
-    jstring httPVersion_string = NULL;
+    jstring httpVersion_string = NULL;
     jobjectArray headerFieldArray = NULL;
 
     if (url != NULL) {
         url_string = env->NewStringUTF(url);
     }
-    if (httPVersion != NULL) {
-        httPVersion_string = env->NewStringUTF(httPVersion);
+    if (httpVersion != NULL) {
+        httpVersion_string = env->NewStringUTF(httpVersion);
     }
     if (headerFields != NULL && headerFields->data != NULL) {
         jsize size = 0;
@@ -68,12 +67,12 @@ void receiveResponse(CurlContext *curlContext, char *url, int statusCode, char *
         }
     }
 
-    env->CallVoidMethod(curlHandler, receiveResponse_method, url_string, statusCode, httPVersion_string,
+    env->CallVoidMethod(curlHandler, receiveResponse_method, url_string, statusCode, httpVersion_string,
                         headerFieldArray);
 
     env->DeleteLocalRef(url_string);
     env->DeleteLocalRef(handler_class);
-    env->DeleteLocalRef(httPVersion_string);
+    env->DeleteLocalRef(httpVersion_string);
     if (headerFieldArray != NULL) {
         for (int i = 0; i < env->GetArrayLength(headerFieldArray); ++i) {
             jobject e = env->GetObjectArrayElement(headerFieldArray, i);

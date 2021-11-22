@@ -63,7 +63,7 @@ class CurlRequest {
             String header = headerKey + ": " + headerValue;
             headerList.add(header);
         }
-        headerList.add("Expect: null");
+        headerList.add("Expect:");
         headerArray = headerList.toArray(new String[]{});
 
         return headerArray;
@@ -75,5 +75,9 @@ class CurlRequest {
 
     byte[] getHttpBody() {
         return httpBody;
+    }
+
+    long getContentLength() {
+        return httpBody.length;
     }
 }

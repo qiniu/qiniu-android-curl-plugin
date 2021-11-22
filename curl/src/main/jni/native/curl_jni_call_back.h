@@ -11,7 +11,7 @@
 #include <jni.h>
 #include "curl_context.h"
 
-void receiveResponse(CurlContext *curlContext, char *url, int statusCode, char *httPVersion,
+void receiveResponse(CurlContext *curlContext, char *url, int statusCode, char *httpVersion,
                      struct curl_slist *headerFields);
 
 size_t sendData(struct CurlContext *curlContext, char *buffer, long long dataLength);

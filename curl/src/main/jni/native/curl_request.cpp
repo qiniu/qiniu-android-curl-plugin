@@ -5,7 +5,6 @@
 #include "stdlib.h"
 #include "string.h"
 #include "curl_request.h"
-#include "curl_utils.h"
 
 char * getJavaCurlRequestURL(JNIEnv *env, jobject curlRequest) {
     if (env == NULL || curlRequest == NULL) {
@@ -148,6 +147,11 @@ struct curl_slist * getJavaCurlRequestHeaderCList(JNIEnv *env, jobject curlReque
             env->ReleaseStringUTFChars(headerField, headerField_char);
         }
     }
+
+    if (requestHeader != NULL) {
+        env->DeleteLocalRef(requestHeader);
+    }
+
     return headerList;
 }
 
@@ -174,6 +178,31 @@ jbyteArray getJavaCurlRequestBody(JNIEnv *env, jobject curlRequest) {
     env->DeleteLocalRef(request_class);
 
     return body;
+}
+
+long long getJavaCurlRequestBodyContentLength(JNIEnv *env, jobject curlRequest) {
+    if (env == NULL || curlRequest == NULL) {
+        return 0;
+    }
+
+    jclass request_class = env->FindClass("com/qiniu/client/curl/CurlRequest");
+    if (request_class == NULL) {
+        return 0;
+    }
+
+    jmethodID getContentLength_method = env->GetMethodID(request_class,
+                                                    "getContentLength",
+                                                    "()J");
+    if (getContentLength_method == NULL) {
+        env->DeleteLocalRef(request_class);
+        return 0;
+    }
+
+    jlong contentLength = env->CallLongMethod(curlRequest, getContentLength_method);
+
+    env->DeleteLocalRef(request_class);
+
+    return contentLength;
 }
 
 int getJavaCurlRequestTimeout(JNIEnv *env, jobject curlRequest) {
@@ -206,12 +235,10 @@ void setCurlContextWithRequest(JNIEnv *env, CurlContext *curlContext, jobject cu
         return;
     }
     curlContext->url = getJavaCurlRequestURL(env, curlRequest);
+    curlContext->requestMethod = getJavaCurlRequestHttpMethod(env, curlRequest);
+    curlContext->requestTimeout = getJavaCurlRequestTimeout(env, curlRequest);
     curlContext->requestVersion = getJavaCurlRequestHttpVersion(env, curlRequest);
     curlContext->requestHeaderFields = getJavaCurlRequestHeaderCList(env, curlRequest);
     curlContext->body = getJavaCurlRequestBody(env, curlRequest);
-    curlContext->requestMethod = getJavaCurlRequestHttpMethod(env, curlRequest);
-    curlContext->requestTimeout = getJavaCurlRequestTimeout(env, curlRequest);
-    jobjectArray requestHeader = getJavaCurlRequestHeaderFields(env, curlRequest);
-    curlContext->totalBytesExpectedToSend = curlUtilGetRequestContentLength(env, curlContext->body,
-                                                                            requestHeader);
+    curlContext->totalBytesExpectedToSend = getJavaCurlRequestBodyContentLength(env, curlRequest);
 }

@@ -28,7 +28,7 @@ public class CurlTest extends BaseTest {
         CurlClient client = new CurlClient();
         final boolean[] isCompleted = {false};
         final ResponseInfo[] res = {null};
-        client.request(request, null, true, null, null, new IRequestClient.RequestClientCompleteHandler() {
+        client.request(request, new IRequestClient.Options(null, true, null), null, new IRequestClient.RequestClientCompleteHandler() {
             @Override
             public void complete(ResponseInfo responseInfo, UploadSingleRequestMetrics metrics, JSONObject response) {
                 res[0] = responseInfo;
