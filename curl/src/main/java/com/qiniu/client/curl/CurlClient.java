@@ -15,8 +15,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 public class CurlClient extends IRequestClient {
 
@@ -87,6 +89,7 @@ public class CurlClient extends IRequestClient {
         }
         final CurlRequest curlRequest = new CurlRequest(request.urlString, httpVersion, httpMethod,
                 request.allHeaders, request.httpBody, request.timeout);
+        userAgentAddCurlVersion(curlRequest);
         if (isAsync) {
             CurlThreadPool.run(new Runnable() {
                 @Override
@@ -190,8 +193,8 @@ public class CurlClient extends IRequestClient {
             @Override
             public void didFinishCollectingMetrics(CurlTransactionMetrics transactionMetrics) {
                 metrics.end();
-                metrics.setClientName("qn-curl");
-                metrics.setClientVersion(config.version + " " + Curl.getCurlVersion());
+                metrics.setClientName(getClientId());
+                metrics.setClientVersion(getCurlVersionInfo());
                 if (transactionMetrics != null) {
                     metrics.setCountOfRequestHeaderBytesSent(transactionMetrics.getCountOfRequestHeaderBytesSent());
                     metrics.setCountOfRequestBodyBytesSent(transactionMetrics.getCountOfRequestBodyBytesSent());
@@ -231,6 +234,25 @@ public class CurlClient extends IRequestClient {
     @Override
     public String getClientId() {
         return "qn-curl";
+    }
+
+    String getCurlVersionInfo() {
+        return config.version + " " + Curl.getCurlVersion();
+    }
+
+    void userAgentAddCurlVersion(CurlRequest request) {
+        Map<String, String> headers = request.getAllHeaders();
+        Set<String> headerKeys = headers.keySet();
+        String userAgentKey = "User-Agent";
+        for (String key : headerKeys) {
+            if (key.equalsIgnoreCase(userAgentKey)) {
+                userAgentKey = key;
+                break;
+            }
+        }
+        String userAgent = headers.get(userAgentKey);
+        userAgent = (userAgent != null ? userAgent : "") + " " + getClientId() + ":" + getCurlVersionInfo();
+        headers.put(userAgentKey, userAgent);
     }
 
     private void releaseResource() {

@@ -11,9 +11,9 @@
 
 char *getCurlVersion() {
     curl_version_info_data *versionInfo = curl_version_info(CURLVERSION_NOW);
-    const char *libcurlLabel = "libcurl:";
+    const char *libcurlLabel = "libcurl/";
     const char *libcurlVersion = versionInfo->version;
-    const char *nghttp2Label = " nghttp2:";
+    const char *nghttp2Label = " nghttp2/";
     const char *nghttp2Version = versionInfo->nghttp2_version;
     const char *quicLabel = " ";
     const char *quicVersion = versionInfo->quic_version;
