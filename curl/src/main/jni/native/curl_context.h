@@ -3,6 +3,7 @@
 //
 
 #include <jni.h>
+#include "string.h"
 #include "curl/curl.h"
 #ifndef CURLDEMO_CURL_CONTEXT_H
 #define CURLDEMO_CURL_CONTEXT_H

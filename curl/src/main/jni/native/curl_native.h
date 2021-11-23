@@ -13,11 +13,6 @@ typedef const char BYTE;
 typedef char* LPBYTE;
 #endif
 
-typedef struct CURLUploadInfo {
-    long bytesRead;
-    LPBYTE data;
-} CURLUploadInfo, *LPCURLUploadInfo;
-
 /*
  * Class:     com_yangsen_curl_Curl
  * Method:    globalInit
