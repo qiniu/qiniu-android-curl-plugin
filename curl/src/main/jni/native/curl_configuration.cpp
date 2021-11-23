@@ -8,28 +8,28 @@
 #include <string.h>
 
 struct curl_slist * getJavaCurlConfigurationDnsResolverArray(JNIEnv *env, jobject curlConfiguration) {
-    if (env == NULL || curlConfiguration == NULL) {
-        return NULL;
+    if (env == nullptr || curlConfiguration == nullptr) {
+        return nullptr;
     }
 
     jclass config_class = env->FindClass("com/qiniu/client/curl/CurlConfiguration");
-    if (config_class == NULL) {
-        return NULL;
+    if (config_class == nullptr) {
+        return nullptr;
     }
 
     jmethodID getDnsResolverArray_method = env->GetMethodID(config_class,
                                                             "getDnsResolverArray",
                                                             "()[Ljava/lang/String;");
-    if (getDnsResolverArray_method == NULL) {
+    if (getDnsResolverArray_method == nullptr) {
         env->DeleteLocalRef(config_class);
-        return NULL;
+        return nullptr;
     }
     jobjectArray dnsResolverArray = (jobjectArray) env->CallObjectMethod(curlConfiguration,
                                                                          getDnsResolverArray_method);
 
-    struct curl_slist *dnsResolverList = NULL;
+    struct curl_slist *dnsResolverList = nullptr;
     int dnsResolverListSize = 0;
-    if (dnsResolverArray != NULL) {
+    if (dnsResolverArray != nullptr) {
         dnsResolverListSize = env->GetArrayLength(dnsResolverArray);
     }
     for (int i = 0; i < dnsResolverListSize; ++i) {
@@ -37,7 +37,7 @@ struct curl_slist * getJavaCurlConfigurationDnsResolverArray(JNIEnv *env, jobjec
 
         jboolean isCopy;
         const char *dnsResolver_char = env->GetStringUTFChars(dnsResolver, &isCopy);
-        if (dnsResolver_char != NULL) {
+        if (dnsResolver_char != nullptr) {
             size_t dnsResolver_char_size = strlen(dnsResolver_char);
             char *dnsResolver_char_cp = (char *) malloc(dnsResolver_char_size);
             memset(dnsResolver_char_cp, '\0', dnsResolver_char_size);
@@ -58,29 +58,29 @@ struct curl_slist * getJavaCurlConfigurationDnsResolverArray(JNIEnv *env, jobjec
 }
 
 char * getJavaCurlConfigurationProxy(JNIEnv *env, jobject curlConfiguration) {
-    if (env == NULL || curlConfiguration == NULL) {
-        return NULL;
+    if (env == nullptr || curlConfiguration == nullptr) {
+        return nullptr;
     }
 
     jclass config_class = env->FindClass("com/qiniu/client/curl/CurlConfiguration");
-    if (config_class == NULL) {
-        return NULL;
+    if (config_class == nullptr) {
+        return nullptr;
     }
 
     jmethodID getProxy_method = env->GetMethodID(config_class,
                                                  "getProxy",
                                                  "()Ljava/lang/String;");
-    if (getProxy_method == NULL) {
+    if (getProxy_method == nullptr) {
         env->DeleteLocalRef(config_class);
-        return NULL;
+        return nullptr;
     }
 
-    char *proxy_char = NULL;
+    char *proxy_char = nullptr;
     jstring proxy = (jstring) env->CallObjectMethod(curlConfiguration, getProxy_method);
-    if (proxy != NULL) {
+    if (proxy != nullptr) {
         jboolean isCopy;
         char *proxy_char_p = const_cast<char *>(env->GetStringUTFChars(proxy, &isCopy));
-        if (proxy_char_p != NULL) {
+        if (proxy_char_p != nullptr) {
             size_t proxy_char_size = strlen(proxy_char_p);
             proxy_char = (char *) malloc(proxy_char_size);
             memset(proxy_char, '\0', proxy_char_size);
@@ -98,29 +98,29 @@ char * getJavaCurlConfigurationProxy(JNIEnv *env, jobject curlConfiguration) {
 }
 
 char *getJavaCurlConfigurationProxyUserPwd(JNIEnv *env, jobject curlConfiguration) {
-    if (env == NULL || curlConfiguration == NULL) {
-        return NULL;
+    if (env == nullptr || curlConfiguration == nullptr) {
+        return nullptr;
     }
 
     jclass config_class = env->FindClass("com/qiniu/client/curl/CurlConfiguration");
-    if (config_class == NULL) {
-        return NULL;
+    if (config_class == nullptr) {
+        return nullptr;
     }
 
     jmethodID getProxyUserPwd_method = env->GetMethodID(config_class,
                                                         "getProxyUserPwd",
                                                         "()Ljava/lang/String;");
-    if (getProxyUserPwd_method == NULL) {
+    if (getProxyUserPwd_method == nullptr) {
         env->DeleteLocalRef(config_class);
-        return NULL;
+        return nullptr;
     }
 
-    char *userPwd_char = NULL;
+    char *userPwd_char = nullptr;
     jstring userPwd = (jstring) env->CallObjectMethod(curlConfiguration, getProxyUserPwd_method);
-    if (userPwd != NULL) {
+    if (userPwd != nullptr) {
         jboolean isCopy;
         char *userPwd_char_p = const_cast<char *>(env->GetStringUTFChars(userPwd, &isCopy));
-        if (userPwd_char_p != NULL) {
+        if (userPwd_char_p != nullptr) {
             size_t userPwd_char_size = strlen(userPwd_char_p);
             userPwd_char = (char *) malloc(userPwd_char_size);
             memset(userPwd_char, '\0', userPwd_char_size);
@@ -139,29 +139,29 @@ char *getJavaCurlConfigurationProxyUserPwd(JNIEnv *env, jobject curlConfiguratio
 
 
 char *getJavaCurlConfigurationCAPath(JNIEnv *env, jobject curlConfiguration) {
-    if (env == NULL || curlConfiguration == NULL) {
-        return NULL;
+    if (env == nullptr || curlConfiguration == nullptr) {
+        return nullptr;
     }
 
     jclass config_class = env->FindClass("com/qiniu/client/curl/CurlConfiguration");
-    if (config_class == NULL) {
-        return NULL;
+    if (config_class == nullptr) {
+        return nullptr;
     }
 
     jmethodID getCAPath_method = env->GetMethodID(config_class,
                                                   "getCAPath",
                                                   "()Ljava/lang/String;");
-    if (getCAPath_method == NULL) {
+    if (getCAPath_method == nullptr) {
         env->DeleteLocalRef(config_class);
-        return NULL;
+        return nullptr;
     }
 
-    char *caPath_char = NULL;
+    char *caPath_char = nullptr;
     jstring caPath = (jstring) env->CallObjectMethod(curlConfiguration, getCAPath_method);
-    if (caPath != NULL) {
+    if (caPath != nullptr) {
         jboolean isCopy;
         char *caPath_char_p = const_cast<char *>(env->GetStringUTFChars(caPath, &isCopy));
-        if (caPath_char_p != NULL) {
+        if (caPath_char_p != nullptr) {
             size_t userPwd_char_size = strlen(caPath_char_p);
             caPath_char = (char *) malloc(userPwd_char_size);
             memset(caPath_char, '\0', userPwd_char_size);
@@ -178,7 +178,7 @@ char *getJavaCurlConfigurationCAPath(JNIEnv *env, jobject curlConfiguration) {
 }
 
 void setCurlContextWithConfiguration(JNIEnv *env, CurlContext *curlContext, jobject curlConfiguration){
-    if (env == NULL) {
+    if (env == nullptr) {
         return;
     }
 

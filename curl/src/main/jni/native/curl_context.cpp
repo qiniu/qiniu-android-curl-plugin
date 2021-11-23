@@ -7,47 +7,47 @@
 
 void releaseCurlContext(CurlContext * context){
 
-    if (context->dnsResolverArray != NULL){
+    if (context->dnsResolverArray != nullptr){
         curl_slist_free_all(context->dnsResolverArray);
-        context->dnsResolverArray = NULL;
+        context->dnsResolverArray = nullptr;
     }
 
-    if (context->requestHeaderFields != NULL){
+    if (context->requestHeaderFields != nullptr){
         curl_slist_free_all(context->requestHeaderFields);
-        context->requestHeaderFields = NULL;
+        context->requestHeaderFields = nullptr;
     }
 
-    if (context->responseHeaderFields != NULL){
+    if (context->responseHeaderFields != nullptr){
         curl_slist_free_all(context->responseHeaderFields);
-        context->responseHeaderFields = NULL;
+        context->responseHeaderFields = nullptr;
     }
 
-    if (context->metrics != NULL){
+    if (context->metrics != nullptr){
         context->env->DeleteLocalRef(context->metrics);
-        context->metrics = NULL;
+        context->metrics = nullptr;
     }
 
     // C
-    if (context->url != NULL) {
+    if (context->url != nullptr) {
         free(context->url);
     }
 
-    if (context->proxy != NULL) {
+    if (context->proxy != nullptr) {
         free(context->proxy);
     }
 
-    if (context->proxyUserPwd != NULL) {
+    if (context->proxyUserPwd != nullptr) {
         free(context->proxyUserPwd);
     }
 
-    if (context->caPath != NULL) {
+    if (context->caPath != nullptr) {
         free(context->caPath);
     }
 
     // jni
-    if (context->env != NULL) {
+    if (context->env != nullptr) {
         JNIEnv *env = context->env;
-        if (context->body != NULL) {
+        if (context->body != nullptr) {
             env->DeleteLocalRef(context->body);
         }
     }

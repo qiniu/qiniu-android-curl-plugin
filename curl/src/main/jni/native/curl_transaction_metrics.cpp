@@ -7,26 +7,26 @@
 #include "curl_context.h"
 
 jobject createJavaMetrics(CurlContext *curlContext){
-    if (curlContext == NULL) {
-        return NULL;
+    if (curlContext == nullptr) {
+        return nullptr;
     }
 
     JNIEnv *env = curlContext->env;
-    if (env == NULL) {
-        return NULL;
+    if (env == nullptr) {
+        return nullptr;
     }
 
     jclass metrics_class = env->FindClass("com/qiniu/client/curl/CurlTransactionMetrics");
-    if (metrics_class == NULL) {
-        return NULL;
+    if (metrics_class == nullptr) {
+        return nullptr;
     }
 
     jmethodID init_method = env->GetMethodID(metrics_class,
                                              "<init>",
                                              "()V");
-    if (init_method == NULL) {
+    if (init_method == nullptr) {
         env->DeleteLocalRef(metrics_class);
-        return NULL;
+        return nullptr;
     }
 
     jobject object = env->NewObject(metrics_class, init_method);
@@ -37,24 +37,24 @@ jobject createJavaMetrics(CurlContext *curlContext){
 }
 
 void setJavaMetricsStringField(CurlContext *curlContext, const char *fieldName, char*fieldValue){
-    if (curlContext == NULL || fieldValue == NULL) {
+    if (curlContext == nullptr || fieldValue == nullptr) {
         return;
     }
 
     JNIEnv *env = curlContext->env;
     jobject metrics = curlContext->metrics;
-    if (env == NULL || metrics == NULL) {
+    if (env == nullptr || metrics == nullptr) {
         return;
     }
 
     jclass metrics_class = env->FindClass("com/qiniu/client/curl/CurlTransactionMetrics");
-    if (metrics_class == NULL) {
+    if (metrics_class == nullptr) {
         return;
     }
 
     jmethodID set_method = env->GetMethodID(metrics_class, fieldName, "(Ljava/lang/String;)V");
 
-    if (set_method == NULL) {
+    if (set_method == nullptr) {
         env->DeleteLocalRef(metrics_class);
         return;
     }
@@ -65,24 +65,24 @@ void setJavaMetricsStringField(CurlContext *curlContext, const char *fieldName, 
 }
 
 void setJavaMetricsLongField(CurlContext *curlContext, const char *fieldName, long long fieldValue){
-    if (curlContext == NULL) {
+    if (curlContext == nullptr) {
         return;
     }
 
     JNIEnv *env = curlContext->env;
     jobject metrics = curlContext->metrics;
-    if (env == NULL || metrics == NULL) {
+    if (env == nullptr || metrics == nullptr) {
         return;
     }
 
     jclass metrics_class = env->FindClass("com/qiniu/client/curl/CurlTransactionMetrics");
-    if (metrics_class == NULL) {
+    if (metrics_class == nullptr) {
         return;
     }
 
     jmethodID set_method = env->GetMethodID(metrics_class, fieldName, "(J)V");
 
-    if (set_method == NULL) {
+    if (set_method == nullptr) {
         env->DeleteLocalRef(metrics_class);
         return;
     }
@@ -93,24 +93,24 @@ void setJavaMetricsLongField(CurlContext *curlContext, const char *fieldName, lo
 }
 
 void setJavaMetricsVoidField(CurlContext *curlContext, const char *fieldName){
-    if (curlContext == NULL) {
+    if (curlContext == nullptr) {
         return;
     }
 
     JNIEnv *env = curlContext->env;
     jobject metrics = curlContext->metrics;
-    if (env == NULL || metrics == NULL) {
+    if (env == nullptr || metrics == nullptr) {
         return;
     }
 
     jclass metrics_class = env->FindClass("com/qiniu/client/curl/CurlTransactionMetrics");
-    if (metrics_class == NULL) {
+    if (metrics_class == nullptr) {
         return;
     }
 
     jmethodID set_method = env->GetMethodID(metrics_class, fieldName, "()V");
 
-    if (set_method == NULL) {
+    if (set_method == nullptr) {
         env->DeleteLocalRef(metrics_class);
         return;
     }

@@ -6,33 +6,18 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cctype>
-#include <cstring>
 #include <curl/curl.h>
+#include <iosfwd>
 
-char *getCurlVersion() {
+std::string getCurlVersion() {
     curl_version_info_data *versionInfo = curl_version_info(CURLVERSION_NOW);
-    const char *libcurlLabel = "libcurl/";
-    const char *libcurlVersion = versionInfo->version;
-    const char *nghttp2Label = " nghttp2/";
-    const char *nghttp2Version = versionInfo->nghttp2_version;
-    const char *quicLabel = " ";
-    const char *quicVersion = versionInfo->quic_version;
-
-    size_t len = 0;
-    len += strlen(libcurlLabel) + strlen(libcurlVersion);
-    len += strlen(nghttp2Label) + strlen(nghttp2Version);
-    len += strlen(quicLabel) + strlen(quicVersion);
-    char *version = static_cast<char *>(malloc(len));
-    if (version == nullptr) {
-        return nullptr;
-    }
-    version = strcpy(version, libcurlLabel);
-    version = strcat(version, libcurlVersion);
-    version = strcat(version, nghttp2Label);
-    version = strcat(version, nghttp2Version);
-    version = strcat(version, quicLabel);
-    version = strcat(version, quicVersion);
-    return version;
+    std::string version = "libcurl/";
+    version.append(versionInfo->version);
+    version.append(";nghttp2/");
+    version.append(versionInfo->nghttp2_version);
+    version.append(";");
+    version.append(versionInfo->quic_version);
+    return std::move(version);
 }
 
 // 返回的char *需要delete

@@ -44,18 +44,18 @@
 
 //-------------------------------------------- Curl filed ------------------------------------------
 bool curlJavaIsCancel(struct CurlContext *curlContext) {
-    if (curlContext == NULL) {
+    if (curlContext == nullptr) {
         return false;
     }
 
     JNIEnv *env = curlContext->env;
     jobject curl = curlContext->curlObj;
-    if (env == NULL || curl == NULL) {
+    if (env == nullptr || curl == nullptr) {
         return false;
     }
 
     jclass curl_class = env->FindClass("com/qiniu/client/curl/Curl");
-    if (curl_class == NULL) {
+    if (curl_class == nullptr) {
         return false;
     }
 
@@ -170,7 +170,7 @@ void initCurlRequestDefaultOptions(CURL *curl, struct CurlContext *curlContext, 
     curl_easy_setopt(curl, CURLOPT_DNS_CACHE_TIMEOUT, 10L);
     curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
 
-    if (curlContext != NULL) {
+    if (curlContext != nullptr) {
         curl_easy_setopt(curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
         curl_easy_setopt(curl, CURLOPT_HTTP_VERSION, curlContext->requestVersion);
     }
@@ -196,7 +196,7 @@ void initCurlRequestDefaultOptions(CURL *curl, struct CurlContext *curlContext, 
 
 void initCurlRequestDownloadData(CURL *curl, struct CurlContext *curlContext, CURLcode *errorCode,
                                  const char **errorInfo) {
-    if (curlContext == NULL) {
+    if (curlContext == nullptr) {
         return;
     }
     qn_curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlWriteCallback, errorCode, errorInfo,
@@ -206,7 +206,7 @@ void initCurlRequestDownloadData(CURL *curl, struct CurlContext *curlContext, CU
 }
 
 void initCurlRequestCustomOptions(CURL *curl, struct CurlContext *curlContext) {
-    if (curlContext == NULL){
+    if (curlContext == nullptr){
         return;
     }
 
@@ -214,7 +214,7 @@ void initCurlRequestCustomOptions(CURL *curl, struct CurlContext *curlContext) {
 
     //todo: CA证书配置
     char *caPath = curlContext->caPath;
-    if (caPath != NULL && strlen(caPath) > 0) {
+    if (caPath != nullptr && strlen(caPath) > 0) {
         curl_easy_setopt(curl, CURLOPT_CAINFO, caPath);
         curl_easy_setopt(curl, CURLOPT_SSLVERSION, CURL_SSLVERSION_DEFAULT);
         curl_easy_setopt(curl, CURLOPT_SSL_CIPHER_LIST, "ALL");
@@ -228,7 +228,7 @@ void initCurlRequestCustomOptions(CURL *curl, struct CurlContext *curlContext) {
 }
 
 void initCurlDnsResolver(CURL *curl, struct CurlContext *curlContext) {
-    if (curlContext != NULL && curlContext->dnsResolverArray != NULL) {
+    if (curlContext != nullptr && curlContext->dnsResolverArray != nullptr) {
 //        kCurlLogD("== Dns resolver:%s", curlContext->dnsResolverArray->data);
         curl_easy_setopt(curl, CURLOPT_RESOLVE, curlContext->dnsResolverArray);
     }
@@ -236,21 +236,21 @@ void initCurlDnsResolver(CURL *curl, struct CurlContext *curlContext) {
 
 void initCurlRequestHeader(CURL *curl, struct CurlContext *curlContext, CURLcode *errorCode,
                            const char **errorInfo) {
-    if (curlContext != NULL && curlContext->requestHeaderFields != NULL) {
+    if (curlContext != nullptr && curlContext->requestHeaderFields != nullptr) {
         qn_curl_easy_setopt(curl, CURLOPT_HTTPHEADER, curlContext->requestHeaderFields, errorCode, errorInfo,
                             "header set error");
     }
 }
 
 void initCurlRequestUrl(CURL *curl, struct CurlContext *curlContext, CURLcode *errorCode, const char **errorInfo) {
-    if (curlContext != NULL && curlContext->url != NULL) {
+    if (curlContext != nullptr && curlContext->url != nullptr) {
         qn_curl_easy_setopt(curl, CURLOPT_URL, curlContext->url, errorCode, errorInfo, "url set error");
     }
 }
 
 void
 initCurlRequestMethodAndRequestData(CURL *curl, struct CurlContext *curlContext, CURLcode *errorCode, const char **errorInfo) {
-    if (curlContext == NULL) {
+    if (curlContext == nullptr) {
         return;
     }
     long long totalBytesExpectedToSend = curlContext->totalBytesExpectedToSend;
@@ -293,7 +293,7 @@ initCurlRequestMethodAndRequestData(CURL *curl, struct CurlContext *curlContext,
 }
 
 void initCurlRequestProxy(CURL *curl, struct CurlContext *curlContext) {
-    if (curlContext != NULL && curlContext->proxy != NULL ) {
+    if (curlContext != nullptr && curlContext->proxy != nullptr ) {
         curl_easy_setopt(curl, CURLOPT_PROXY, curlContext->proxy);
     }
 }
@@ -311,7 +311,7 @@ void performRequest(CURL *curl, CURLcode *errorCode, const char **errorInfo) {
 
 void handleResponse(struct CurlContext *curlContext, CURL *curl) {
 
-    if (curlContext == NULL || curl == NULL) {
+    if (curlContext == nullptr || curl == nullptr) {
         return;
     }
 
@@ -324,7 +324,7 @@ void handleResponse(struct CurlContext *curlContext, CURL *curl) {
         statusCode = -999;
     }
 
-    char const *httpVersionString = NULL;
+    char const *httpVersionString = nullptr;
     if (httpVersion == CURL_HTTP_VERSION_1_0) {
         httpVersionString = "HTTP/1.0";
     } else if (httpVersion == CURL_HTTP_VERSION_1_1) {
@@ -343,14 +343,14 @@ void handleResponse(struct CurlContext *curlContext, CURL *curl) {
 }
 
 void handleMetrics(struct CurlContext *curlContext, CURL *curl) {
-    if (curlContext == NULL || curl == NULL) {
+    if (curlContext == nullptr || curl == nullptr) {
         return;
     }
 
     long localPort;
     long remotePort;
-    char *localIP = NULL;
-    char *remoteIP = NULL;
+    char *localIP = nullptr;
+    char *remoteIP = nullptr;
     curl_easy_getinfo(curl, CURLINFO_LOCAL_PORT, &localPort);
     curl_easy_getinfo(curl, CURLINFO_LOCAL_IP, &localIP);
     curl_easy_getinfo(curl, CURLINFO_PRIMARY_PORT, &remotePort);
@@ -386,11 +386,11 @@ void handleMetrics(struct CurlContext *curlContext, CURL *curl) {
     setJavaMetricsRedirectTime(curlContext, redirect_time);
 
     curl_off_t request_header_size, request_body_size, response_header_size, response_body_size;
-    if (curlContext->requestHeaderFields != NULL) {
+    if (curlContext->requestHeaderFields != nullptr) {
         struct curl_slist *next_headerField = curlContext->requestHeaderFields;
         long long size = 0;
-        while (next_headerField != NULL) {
-            if (next_headerField->data != NULL) {
+        while (next_headerField != nullptr) {
+            if (next_headerField->data != nullptr) {
                 size += strlen(next_headerField->data);
             }
             next_headerField = next_headerField->next;
@@ -428,9 +428,8 @@ extern "C" JNIEXPORT jstring JNICALL Java_com_qiniu_client_curl_Curl_getCurlVers
         return nullptr;
     }
 
-    char *version = getCurlVersion();
-    jstring versionString = env->NewStringUTF(version);
-    free(version);
+    std::string version = getCurlVersion();
+    jstring versionString = env->NewStringUTF(version.c_str());
     return versionString;
 }
 
@@ -445,11 +444,11 @@ extern "C" JNIEXPORT void JNICALL Java_com_qiniu_client_curl_Curl_requestNative(
     const char *errorInfo = nullptr;
 
     // context
-    struct CurlContext curlContext;
+    struct CurlContext curlContext{};
     curlContext.env = env;
     curlContext.curlObj = curlObj;
     curlContext.curlHandler = curlHandler;
-    curlContext.responseHeaderFields = NULL;
+    curlContext.responseHeaderFields = nullptr;
     curlContext.metrics = createJavaMetrics(&curlContext);
     curlContext.totalBytesSent = 0;
     curlContext.totalBytesReceive = 0;
@@ -463,35 +462,35 @@ extern "C" JNIEXPORT void JNICALL Java_com_qiniu_client_curl_Curl_requestNative(
     setJavaMetricsStartTimestamp(&curlContext);
 
     CURL *curl = curl_easy_init();
-    if (curl == NULL) {
+    if (curl == nullptr) {
         goto curl_perform_complete_error;
     }
 
     initCurlRequestDefaultOptions(curl, &curlContext, &errorCode,
                                   reinterpret_cast<const char **>(&errorInfo));
-    if (errorInfo != NULL) {
+    if (errorInfo != nullptr) {
         goto curl_perform_complete_error;
     }
     initCurlRequestCustomOptions(curl, &curlContext);
 
     initCurlRequestDownloadData(curl, &curlContext, &errorCode,
                                 reinterpret_cast<const char **>(&errorInfo));
-    if (errorInfo != NULL) {
+    if (errorInfo != nullptr) {
         goto curl_perform_complete_error;
     }
     initCurlDnsResolver(curl, &curlContext);
     initCurlRequestProxy(curl, &curlContext);
     initCurlRequestHeader(curl, &curlContext, &errorCode,
                           reinterpret_cast<const char **>(&errorInfo));
-    if (errorInfo != NULL) {
+    if (errorInfo != nullptr) {
         goto curl_perform_complete_error;
     }
     initCurlRequestUrl(curl, &curlContext, &errorCode, reinterpret_cast<const char **>(&errorInfo));
-    if (errorInfo != NULL) {
+    if (errorInfo != nullptr) {
         goto curl_perform_complete_error;
     }
     initCurlRequestMethodAndRequestData(curl, &curlContext, &errorCode, reinterpret_cast<const char **>(&errorInfo));
-    if (errorInfo != NULL) {
+    if (errorInfo != nullptr) {
         goto curl_perform_complete_error;
     }
 
@@ -505,7 +504,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_qiniu_client_curl_Curl_requestNative(
     completeWithError(&curlContext, transformCurlStatusCode(errorCode), reinterpret_cast<const char *>(&errorInfo));
 
     releaseCurlContext(&curlContext);
-    if (curl != NULL) {
+    if (curl != nullptr) {
         curl_easy_cleanup(curl);
     }
 }

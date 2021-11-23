@@ -237,7 +237,7 @@ public class CurlClient extends IRequestClient {
     }
 
     String getCurlVersionInfo() {
-        return config.version + " " + Curl.getCurlVersion();
+        return config.version + ";" + Curl.getCurlVersion();
     }
 
     void userAgentAddCurlVersion(CurlRequest request) {
@@ -251,7 +251,7 @@ public class CurlClient extends IRequestClient {
             }
         }
         String userAgent = headers.get(userAgentKey);
-        userAgent = (userAgent != null ? userAgent : "") + " " + getClientId() + ":" + getCurlVersionInfo();
+        userAgent = (userAgent != null ? (userAgent + ";") : "") + getClientId() + ":" + getCurlVersionInfo();
         headers.put(userAgentKey, userAgent);
     }
 
