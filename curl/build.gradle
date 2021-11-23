@@ -98,34 +98,3 @@ task generateMergeJar(type: Jar, dependsOn:['generateSoJar', 'generateSourcesJar
     from(project.zipTree('build/libs/curl-resource.jar'))
     from(project.zipTree('build/intermediates/aar_main_jar/release/classes.jar'))
 }
-
-apply plugin: 'maven-publish'
-
-//以下与dependencies{}同级
-publishing {
-    publications {
-        maven(MavenPublication) {
-            groupId = 'com.qiniu'
-            artifactId = 'qiniu-android-curl-plugin'
-            version = '1.0.0'
-
-            afterEvaluate { artifact(tasks.getByName("bundleReleaseAar")) }
-            artifact generateMergeJar
-
-            pom.withXml{
-                def dependenciesNode = asNode().appendNode("dependencies")
-                configurations.implementation.allDependencies.forEach(){
-                    Dependency dependency ->
-                        if (dependency.version != "unspecified" && dependency.name != "unspecified"){
-                            def dependencyNode = dependenciesNode.appendNode('dependency')
-                            dependencyNode.appendNode('groupId', dependency.group)
-                            dependencyNode.appendNode('artifactId', dependency.name)
-                            dependencyNode.appendNode('version', dependency.version)
-                        }
-                }
-            }
-        }
-    }
-//本地地址
-    repositories { maven { url = "file:/Users/senyang/.m2/repository/" } }
-}
