@@ -74,9 +74,6 @@ dependencies {
     androidTestImplementation "androidx.test:rules:1.4.0"
 }
 
-
-apply plugin: 'maven-publish'
-
 task generateSourcesJar(type: Jar) {
     group = 'jar'
     from android.sourceSets.main.java.srcDirs
@@ -101,6 +98,8 @@ task generateMergeJar(type: Jar, dependsOn:['generateSoJar', 'generateSourcesJar
     from(project.zipTree('build/libs/curl-resource.jar'))
     from(project.zipTree('build/intermediates/aar_main_jar/release/classes.jar'))
 }
+
+apply plugin: 'maven-publish'
 
 //以下与dependencies{}同级
 publishing {
