@@ -2,7 +2,7 @@ package com.qiniu.client.curl;
 
 import java.util.Map;
 
-public class CurlResponse {
+class CurlResponse {
 
     public final String url;
     public final int statusCode;
@@ -11,7 +11,7 @@ public class CurlResponse {
     public final long expectedContentLength;
     public final String httpVersion;
 
-    public CurlResponse(String url,
+    CurlResponse(String url,
                         int statusCode,
                         Map<String, String> allHeaderFields,
                         String mimeType,
@@ -25,27 +25,27 @@ public class CurlResponse {
         this.httpVersion = httpVersion;
     }
 
-    public String getUrl() {
+    String getUrl() {
         return url;
     }
 
-    public int getStatusCode() {
+    int getStatusCode() {
         return statusCode;
     }
 
-    public Map<String, String> getAllHeaderFields() {
+    Map<String, String> getAllHeaderFields() {
         return allHeaderFields;
     }
 
-    public String getMimeType() {
+    String getMimeType() {
         return null;
     }
 
-    public long getExpectedContentLength() {
+    long getExpectedContentLength() {
         return expectedContentLength;
     }
 
-    public String getHttpVersion() {
+    String getHttpVersion() {
         return httpVersion;
     }
 }

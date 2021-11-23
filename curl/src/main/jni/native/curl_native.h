@@ -25,6 +25,8 @@ typedef struct CURLUploadInfo {
  */
 JNIEXPORT jlong JNICALL Java_com_qiniu_client_curl_Curl_globalInit(JNIEnv *, jobject);
 
+JNIEXPORT jstring JNICALL Java_com_qiniu_client_curl_Curl_getCurlVersion(JNIEnv *env, jclass clazz);
+
 /*
  * Class:     com_yangsen_curl_Curl
  * Method:    request

@@ -191,7 +191,7 @@ public class CurlClient extends IRequestClient {
             public void didFinishCollectingMetrics(CurlTransactionMetrics transactionMetrics) {
                 metrics.end();
                 metrics.setClientName("qn-curl");
-                metrics.setClientVersion(config.version);
+                metrics.setClientVersion(config.version + " " + Curl.getCurlVersion());
                 if (transactionMetrics != null) {
                     metrics.setCountOfRequestHeaderBytesSent(transactionMetrics.getCountOfRequestHeaderBytesSent());
                     metrics.setCountOfRequestBodyBytesSent(transactionMetrics.getCountOfRequestBodyBytesSent());

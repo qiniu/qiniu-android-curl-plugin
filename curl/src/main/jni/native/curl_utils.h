@@ -8,6 +8,9 @@
 #ifndef UPLOADDEMO_ANDROID_CURL_UTILS_H
 #define UPLOADDEMO_ANDROID_CURL_UTILS_H
 
+// 获取 curl 版本信息
+char *getCurlVersion();
+
 // 返回的char *需要delete
 char* curlUtilConvertJByteArrayToChars(JNIEnv *env, jbyteArray byteArray);
 

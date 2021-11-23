@@ -3,7 +3,6 @@ package com.qiniu.client.curl;
 import java.util.Date;
 
 class CurlTransactionMetrics {
-
     private long countOfRequestHeaderBytesSent;
     private long countOfRequestBodyBytesSent;
 

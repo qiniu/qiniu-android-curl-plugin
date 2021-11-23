@@ -26,6 +26,8 @@ class Curl {
 
     native long globalInit();
 
+    static native String getCurlVersion();
+
     void request(final CurlRequest request,
                  final CurlConfiguration curlConfiguration,
                  final Handler curlHandler) {

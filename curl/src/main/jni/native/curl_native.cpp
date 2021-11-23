@@ -8,6 +8,7 @@
 #include "curl_request.h"
 #include "curl_jni_call_back.h"
 #include "curl_error.h"
+#include "curl_utils.h"
 
 #include <jni.h>
 #include <android/log.h>
@@ -342,7 +343,7 @@ void handleResponse(struct CurlContext *curlContext, CURL *curl) {
 }
 
 void handleMetrics(struct CurlContext *curlContext, CURL *curl) {
-    if (curl == NULL) {
+    if (curlContext == NULL || curl == NULL) {
         return;
     }
 
@@ -359,6 +360,8 @@ void handleMetrics(struct CurlContext *curlContext, CURL *curl) {
     setJavaMetricsLocalAddress(curlContext, localIP);
     setJavaMetricsRemotePort(curlContext, remotePort);
     setJavaMetricsRemoteAddress(curlContext, remoteIP);
+    free(localIP);
+    free(remoteIP);
 
     curl_off_t total_time, name_lookup_time, connect_time, app_connect_time,
             pre_transfer_time, start_transfer_time, redirect_time, redirect_count;
@@ -420,6 +423,16 @@ extern "C" JNIEXPORT jlong JNICALL Java_com_qiniu_client_curl_Curl_globalInit(JN
     return curl_global_init(CURL_GLOBAL_ALL);
 }
 
+extern "C" JNIEXPORT jstring JNICALL Java_com_qiniu_client_curl_Curl_getCurlVersion(JNIEnv *env, jclass clazz) {
+    if (env == nullptr) {
+        return nullptr;
+    }
+
+    char *version = getCurlVersion();
+    jstring versionString = env->NewStringUTF(version);
+    free(version);
+    return versionString;
+}
 
 extern "C" JNIEXPORT void JNICALL Java_com_qiniu_client_curl_Curl_requestNative(JNIEnv *env,
                                                                          jobject curlObj,

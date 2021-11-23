@@ -50,6 +50,7 @@ public class UploadTest extends BaseTest {
         String key = "form_2M.zip";
         File file = TempFile.createFile(1024 * 2, key);
 
+        GlobalConfiguration.getInstance().enableHttp3 = true;
         GlobalConfiguration.getInstance().dns = new Dns() {
             @Override
             public List<IDnsNetworkAddress> lookup(String hostname) throws UnknownHostException {
@@ -112,6 +113,7 @@ public class UploadTest extends BaseTest {
         String key = "resume_v1_5M.zip";
         File file = TempFile.createFile(1024 * 5, key);
 
+        GlobalConfiguration.getInstance().enableHttp3 = true;
         GlobalConfiguration.getInstance().dns = new Dns() {
             @Override
             public List<IDnsNetworkAddress> lookup(String hostname) throws UnknownHostException {
@@ -174,6 +176,7 @@ public class UploadTest extends BaseTest {
         String key = "resume_v2_5M.zip";
         File file = TempFile.createFile(1024 * 5, key);
 
+        GlobalConfiguration.getInstance().enableHttp3 = true;
         GlobalConfiguration.getInstance().dns = new Dns() {
             @Override
             public List<IDnsNetworkAddress> lookup(String hostname) throws UnknownHostException {
