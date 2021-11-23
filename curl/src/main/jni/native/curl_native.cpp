@@ -153,7 +153,8 @@ void initCurlRequestDefaultOptions(CURL *curl, struct CurlContext *curlContext, 
 
     curl_easy_setopt(curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
 
-    curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 10L);
+    // 注：与库对接需要
+    curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 60L);
     curl_easy_setopt(curl, CURLOPT_ACCEPTTIMEOUT_MS, 5000L);
     curl_easy_setopt(curl, CURLOPT_HAPPY_EYEBALLS_TIMEOUT_MS, 300L);
 
