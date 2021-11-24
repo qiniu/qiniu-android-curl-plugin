@@ -516,9 +516,10 @@ extern "C" JNIEXPORT void JNICALL Java_com_qiniu_client_curl_Curl_requestNative(
     completeWithError(curlContext, transformCurlStatusCode(errorCode),
                       reinterpret_cast<const char *>(&errorInfo));
 
-    delete curlContext;
     if (curl != nullptr) {
         curl_easy_cleanup(curl);
     }
+
+    delete curlContext;
 }
 

@@ -40,6 +40,4 @@ public:
     ~CurlContext();
 };
 
-void releaseCurlContext(CurlContext * context);
-
 #endif //CURLDEMO_CURL_CONTEXT_H

@@ -27,8 +27,7 @@ std::string getJavaCurlRequestURL(JNIEnv *env, jobject curlRequest) {
     std::string urlString;
     auto url = (jstring) env->CallObjectMethod(curlRequest, getUrlString_method);
     if (url != nullptr) {
-        jboolean isCopy;
-        char *urlChar = const_cast<char *>(env->GetStringUTFChars(url, &isCopy));
+        char *urlChar = const_cast<char *>(env->GetStringUTFChars(url, nullptr));
         if (urlChar != nullptr) {
             urlString = urlChar;
             env->ReleaseStringUTFChars(url, urlChar);
