@@ -3,11 +3,7 @@
 //
 
 #include "curl_utils.h"
-#include <cstdio>
-#include <cstdlib>
-#include <cctype>
 #include <curl/curl.h>
-#include <iosfwd>
 
 std::string getCurlVersion() {
     curl_version_info_data *versionInfo = curl_version_info(CURLVERSION_NOW);

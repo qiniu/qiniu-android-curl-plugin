@@ -11,6 +11,7 @@
 #include "curl_utils.h"
 
 #include <jni.h>
+#include <mutex>
 #include <android/log.h>
 #include <curl/curl.h>
 #include <ctime>
@@ -164,9 +165,6 @@ void initCurlRequestDefaultOptions(CURL *curl, CurlContext *curlContext, CURLcod
     curl_easy_setopt(curl, CURLOPT_TCP_KEEPINTVL, 2L);
     curl_easy_setopt(curl, CURLOPT_TCP_FASTOPEN, 1L);
 
-    //  curl_easy_setopt(curl, CURLOPT_MAXCONNECTS, 0L);
-    //   curl_easy_setopt(curl, CURLOPT_FORBID_REUSE, 1L);
-//    curl_easy_setopt(curl, CURLOPT_PIPEWAIT, 1);
     curl_easy_setopt(curl, CURLOPT_DNS_CACHE_TIMEOUT, 10L);
     curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
 
@@ -427,15 +425,23 @@ Java_com_qiniu_client_curl_Curl_globalInit(JNIEnv *env, jobject obj) {
     return curl_global_init(CURL_GLOBAL_ALL);
 }
 
+static std::once_flag version_once_flag;
+static std::string version;
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_qiniu_client_curl_Curl_getCurlVersion(JNIEnv *env, jclass clazz) {
     if (env == nullptr) {
         return nullptr;
     }
 
-    std::string version = getCurlVersion();
-    jstring versionString = env->NewStringUTF(version.c_str());
-    return versionString;
+    std::call_once(version_once_flag, []() {
+        version = getCurlVersion();
+    });
+
+    if (version.empty()) {
+        return env->NewStringUTF("");
+    } else {
+        return env->NewStringUTF(version.c_str());
+    }
 }
 
 extern "C" JNIEXPORT void JNICALL Java_com_qiniu_client_curl_Curl_requestNative(JNIEnv *env,
