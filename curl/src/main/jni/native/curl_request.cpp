@@ -2,11 +2,10 @@
 // Created by yangsen on 2020/10/26.
 //
 
-#include "stdlib.h"
-#include "string.h"
+#include <string>
 #include "curl_request.h"
 
-char * getJavaCurlRequestURL(JNIEnv *env, jobject curlRequest) {
+std::string getJavaCurlRequestURL(JNIEnv *env, jobject curlRequest) {
     if (env == nullptr || curlRequest == nullptr) {
         return nullptr;
     }
@@ -25,25 +24,21 @@ char * getJavaCurlRequestURL(JNIEnv *env, jobject curlRequest) {
     }
 
 
-    char *url_char = nullptr;
-    jstring url = (jstring) env->CallObjectMethod(curlRequest, getUrlString_method);
+    std::string urlString;
+    auto url = (jstring) env->CallObjectMethod(curlRequest, getUrlString_method);
     if (url != nullptr) {
         jboolean isCopy;
-        char *url_char_p = const_cast<char *>(env->GetStringUTFChars(url, &isCopy));
-        if (url_char_p != nullptr) {
-            size_t userPwd_char_size = strlen(url_char_p);
-            url_char = (char *) malloc(userPwd_char_size);
-            memset(url_char, '\0', userPwd_char_size);
-            strcpy(url_char, url_char_p);
-
-            env->ReleaseStringUTFChars(url, url_char_p);
+        char *urlChar = const_cast<char *>(env->GetStringUTFChars(url, &isCopy));
+        if (urlChar != nullptr) {
+            urlString = urlChar;
+            env->ReleaseStringUTFChars(url, urlChar);
         }
     }
 
     env->DeleteLocalRef(url);
     env->DeleteLocalRef(request_class);
 
-    return url_char;
+    return urlString;
 }
 
 int getJavaCurlRequestHttpVersion(JNIEnv *env, jobject curlRequest) {
@@ -135,16 +130,12 @@ struct curl_slist * getJavaCurlRequestHeaderCList(JNIEnv *env, jobject curlReque
     }
     for (int i = 0; i < headSize; ++i) {
         auto headerField = (jstring) env->GetObjectArrayElement(requestHeader, i);
-        const char *headerField_char = env->GetStringUTFChars(headerField, nullptr);
-        if (headerField_char != nullptr) {
-            size_t headerField_char_size = strlen(headerField_char);
-            char *headerField_char_cp = (char *) malloc(headerField_char_size);
-            memset(headerField_char_cp, '\0', headerField_char_size);
-            strcpy(headerField_char_cp, headerField_char);
+        const char *headerFieldChar = env->GetStringUTFChars(headerField, nullptr);
+        if (headerFieldChar != nullptr) {
+            // curl_slist_append 会 copy
+            headerList = curl_slist_append(headerList, headerFieldChar);
 
-            headerList = curl_slist_append(headerList, headerField_char_cp);
-
-            env->ReleaseStringUTFChars(headerField, headerField_char);
+            env->ReleaseStringUTFChars(headerField, headerFieldChar);
         }
     }
 

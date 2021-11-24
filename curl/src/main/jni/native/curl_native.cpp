@@ -12,8 +12,6 @@
 
 #include <jni.h>
 #include <android/log.h>
-#include <stdlib.h>
-#include <string.h>
 #include <curl/curl.h>
 #include <ctime>
 
@@ -43,7 +41,7 @@
 }
 
 //-------------------------------------------- Curl filed ------------------------------------------
-bool curlJavaIsCancel(struct CurlContext *curlContext) {
+bool curlJavaIsCancel(CurlContext *curlContext) {
     if (curlContext == nullptr) {
         return false;
     }
@@ -105,27 +103,28 @@ int CurlDebugCallback(CURL *curl, curl_infotype infoType, char *info, size_t inf
 
 size_t CurlReceiveHeaderCallback(char *buffer, size_t size, size_t nitems, void *userData) {
     const size_t sizeInBytes = size * nitems;
-    auto *curlContext = (struct CurlContext *) userData;
-    curlContext->responseHeaderFields = curl_slist_append(curlContext->responseHeaderFields, buffer);
+    auto *curlContext = (CurlContext *) userData;
+    curlContext->responseHeaderFields = curl_slist_append(curlContext->responseHeaderFields,
+                                                          buffer);
     return sizeInBytes;
 }
 
 size_t CurlReadCallback(void *ptr, size_t size, size_t nmemb, void *userData) {
     size_t sizeInBytes = size * nmemb;
-    auto *curlContext = (struct CurlContext *) userData;
+    CurlContext *curlContext = (CurlContext *) userData;
     sizeInBytes = sendData(curlContext, (char *) ptr, sizeInBytes);
     return sizeInBytes;
 }
 
 size_t CurlWriteCallback(char *ptr, size_t size, size_t nmemb, void *userData) {
     const size_t sizeInBytes = size * nmemb;
-    auto *curlContext = (struct CurlContext *) userData;
+    auto *curlContext = (CurlContext *) userData;
     return receiveData(curlContext, ptr, sizeInBytes);
 }
 
 int CurlProgressCallback(void *client, double downloadTotal, double downloadNow, double uploadTotal,
                          double uploadNow) {
-    struct CurlContext *curlContext = (struct CurlContext *) client;
+    CurlContext *curlContext = (CurlContext *) client;
 
     curlContext->totalBytesExpectedToSend = (long long) uploadTotal;
     auto sendBodyLength = (long long) ((long long) uploadNow - curlContext->totalBytesSent);
@@ -138,7 +137,8 @@ int CurlProgressCallback(void *client, double downloadTotal, double downloadNow,
     auto receiveBodyLength = (long long) ((long long) downloadNow - curlContext->totalBytesReceive);
     curlContext->totalBytesReceive = (long long) downloadNow;
     if (receiveBodyLength > 0) {
-        receiveProgress(curlContext, receiveBodyLength, (long long) downloadNow, (long long) downloadTotal);
+        receiveProgress(curlContext, receiveBodyLength, (long long) downloadNow,
+                        (long long) downloadTotal);
     }
 
     if (curlJavaIsCancel(curlContext)) {
@@ -149,7 +149,7 @@ int CurlProgressCallback(void *client, double downloadTotal, double downloadNow,
 }
 
 //--------------------------------------------- INTER ----------------------------------------------
-void initCurlRequestDefaultOptions(CURL *curl, struct CurlContext *curlContext, CURLcode *errorCode,
+void initCurlRequestDefaultOptions(CURL *curl, CurlContext *curlContext, CURLcode *errorCode,
                                    const char **errorInfo) {
 
     curl_easy_setopt(curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
@@ -164,7 +164,7 @@ void initCurlRequestDefaultOptions(CURL *curl, struct CurlContext *curlContext, 
     curl_easy_setopt(curl, CURLOPT_TCP_KEEPINTVL, 2L);
     curl_easy_setopt(curl, CURLOPT_TCP_FASTOPEN, 1L);
 
-  //  curl_easy_setopt(curl, CURLOPT_MAXCONNECTS, 0L);
+    //  curl_easy_setopt(curl, CURLOPT_MAXCONNECTS, 0L);
     //   curl_easy_setopt(curl, CURLOPT_FORBID_REUSE, 1L);
 //    curl_easy_setopt(curl, CURLOPT_PIPEWAIT, 1);
     curl_easy_setopt(curl, CURLOPT_DNS_CACHE_TIMEOUT, 10L);
@@ -174,7 +174,6 @@ void initCurlRequestDefaultOptions(CURL *curl, struct CurlContext *curlContext, 
         curl_easy_setopt(curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
         curl_easy_setopt(curl, CURLOPT_HTTP_VERSION, curlContext->requestVersion);
     }
-
 
 
     curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
@@ -194,7 +193,7 @@ void initCurlRequestDefaultOptions(CURL *curl, struct CurlContext *curlContext, 
                         "progress function set 2 error");
 }
 
-void initCurlRequestDownloadData(CURL *curl, struct CurlContext *curlContext, CURLcode *errorCode,
+void initCurlRequestDownloadData(CURL *curl, CurlContext *curlContext, CURLcode *errorCode,
                                  const char **errorInfo) {
     if (curlContext == nullptr) {
         return;
@@ -205,17 +204,16 @@ void initCurlRequestDownloadData(CURL *curl, struct CurlContext *curlContext, CU
                         "write function set 1 error");
 }
 
-void initCurlRequestCustomOptions(CURL *curl, struct CurlContext *curlContext) {
-    if (curlContext == nullptr){
+void initCurlRequestCustomOptions(CURL *curl, CurlContext *curlContext) {
+    if (curlContext == nullptr) {
         return;
     }
 
     curl_easy_setopt(curl, CURLOPT_TIMEOUT, curlContext->requestTimeout);
 
-    //todo: CA证书配置
-    char *caPath = curlContext->caPath;
-    if (caPath != nullptr && strlen(caPath) > 0) {
-        curl_easy_setopt(curl, CURLOPT_CAINFO, caPath);
+    std::string caPath = curlContext->caPath;
+    if (!caPath.empty()) {
+        curl_easy_setopt(curl, CURLOPT_CAINFO, caPath.c_str());
         curl_easy_setopt(curl, CURLOPT_SSLVERSION, CURL_SSLVERSION_DEFAULT);
         curl_easy_setopt(curl, CURLOPT_SSL_CIPHER_LIST, "ALL");
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
@@ -227,29 +225,33 @@ void initCurlRequestCustomOptions(CURL *curl, struct CurlContext *curlContext) {
     }
 }
 
-void initCurlDnsResolver(CURL *curl, struct CurlContext *curlContext) {
+void initCurlDnsResolver(CURL *curl, CurlContext *curlContext) {
     if (curlContext != nullptr && curlContext->dnsResolverArray != nullptr) {
 //        kCurlLogD("== Dns resolver:%s", curlContext->dnsResolverArray->data);
         curl_easy_setopt(curl, CURLOPT_RESOLVE, curlContext->dnsResolverArray);
     }
 }
 
-void initCurlRequestHeader(CURL *curl, struct CurlContext *curlContext, CURLcode *errorCode,
+void initCurlRequestHeader(CURL *curl, CurlContext *curlContext, CURLcode *errorCode,
                            const char **errorInfo) {
     if (curlContext != nullptr && curlContext->requestHeaderFields != nullptr) {
-        qn_curl_easy_setopt(curl, CURLOPT_HTTPHEADER, curlContext->requestHeaderFields, errorCode, errorInfo,
+        qn_curl_easy_setopt(curl, CURLOPT_HTTPHEADER, curlContext->requestHeaderFields, errorCode,
+                            errorInfo,
                             "header set error");
     }
 }
 
-void initCurlRequestUrl(CURL *curl, struct CurlContext *curlContext, CURLcode *errorCode, const char **errorInfo) {
-    if (curlContext != nullptr && curlContext->url != nullptr) {
-        qn_curl_easy_setopt(curl, CURLOPT_URL, curlContext->url, errorCode, errorInfo, "url set error");
+void initCurlRequestUrl(CURL *curl, CurlContext *curlContext, CURLcode *errorCode,
+                        const char **errorInfo) {
+    if (curlContext != nullptr && !curlContext->url.empty()) {
+        qn_curl_easy_setopt(curl, CURLOPT_URL, curlContext->url.c_str(), errorCode, errorInfo,
+                            "url set error");
     }
 }
 
 void
-initCurlRequestMethodAndRequestData(CURL *curl, struct CurlContext *curlContext, CURLcode *errorCode, const char **errorInfo) {
+initCurlRequestMethodAndRequestData(CURL *curl, CurlContext *curlContext,
+                                    CURLcode *errorCode, const char **errorInfo) {
     if (curlContext == nullptr) {
         return;
     }
@@ -262,7 +264,8 @@ initCurlRequestMethodAndRequestData(CURL *curl, struct CurlContext *curlContext,
     } else if (httpMethod == Curl_Request_Http_Method_POST) {
         qn_curl_easy_setopt(curl, CURLOPT_POST, 1, errorCode, errorInfo, "POST Option set error");
         if (totalBytesExpectedToSend > 0) {
-            qn_curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, totalBytesExpectedToSend, errorCode, errorInfo,
+            qn_curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, totalBytesExpectedToSend, errorCode,
+                                errorInfo,
                                 "body length set error");
 //        qn_curl_easy_setopt(curl, CURLOPT_POSTFIELDS, curlUtilConvertJByteArrayToChars(curlContext->env, curlContext->body), errorCode, errorInfo,
 //                            "body set error");
@@ -273,7 +276,7 @@ initCurlRequestMethodAndRequestData(CURL *curl, struct CurlContext *curlContext,
                             "read function set 2 error");
     } else if (httpMethod == Curl_Request_Http_Method_PUT) {
         qn_curl_easy_setopt(curl, CURLOPT_UPLOAD, 1, errorCode, errorInfo,
-                         "PUT Option set error");
+                            "PUT Option set error");
         if (totalBytesExpectedToSend > 0) {
             qn_curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE, totalBytesExpectedToSend, errorCode,
                                 errorInfo,
@@ -292,9 +295,9 @@ initCurlRequestMethodAndRequestData(CURL *curl, struct CurlContext *curlContext,
     }
 }
 
-void initCurlRequestProxy(CURL *curl, struct CurlContext *curlContext) {
-    if (curlContext != nullptr && curlContext->proxy != nullptr ) {
-        curl_easy_setopt(curl, CURLOPT_PROXY, curlContext->proxy);
+void initCurlRequestProxy(CURL *curl, CurlContext *curlContext) {
+    if (curlContext != nullptr && !curlContext->proxy.empty()) {
+        curl_easy_setopt(curl, CURLOPT_PROXY, curlContext->proxy.c_str());
     }
 }
 
@@ -309,7 +312,7 @@ void performRequest(CURL *curl, CURLcode *errorCode, const char **errorInfo) {
     *errorCode = code;
 }
 
-void handleResponse(struct CurlContext *curlContext, CURL *curl) {
+void handleResponse(CurlContext *curlContext, CURL *curl) {
 
     if (curlContext == nullptr || curl == nullptr) {
         return;
@@ -324,7 +327,7 @@ void handleResponse(struct CurlContext *curlContext, CURL *curl) {
         statusCode = -999;
     }
 
-    char const *httpVersionString = nullptr;
+    std::string httpVersionString;
     if (httpVersion == CURL_HTTP_VERSION_1_0) {
         httpVersionString = "HTTP/1.0";
     } else if (httpVersion == CURL_HTTP_VERSION_1_1) {
@@ -338,12 +341,12 @@ void handleResponse(struct CurlContext *curlContext, CURL *curl) {
     } else {
         httpVersionString = "";
     }
-    receiveResponse(curlContext, curlContext->url, statusCode, const_cast<char *>(httpVersionString),
+    receiveResponse(curlContext, curlContext->url, statusCode, httpVersionString,
                     curlContext->responseHeaderFields);
 }
 
-void handleMetrics(struct CurlContext *curlContext, CURL *curl) {
-    if (curlContext == nullptr || curl == nullptr) {
+void handleMetrics(CurlContext *curlContext, CURL *curl) {
+    if (curl == nullptr) {
         return;
     }
 
@@ -419,11 +422,13 @@ void handleMetrics(struct CurlContext *curlContext, CURL *curl) {
 }
 
 //---------------------------------------------- JNI -----------------------------------------------
-extern "C" JNIEXPORT jlong JNICALL Java_com_qiniu_client_curl_Curl_globalInit(JNIEnv *env, jobject obj) {
+extern "C" JNIEXPORT jlong JNICALL
+Java_com_qiniu_client_curl_Curl_globalInit(JNIEnv *env, jobject obj) {
     return curl_global_init(CURL_GLOBAL_ALL);
 }
 
-extern "C" JNIEXPORT jstring JNICALL Java_com_qiniu_client_curl_Curl_getCurlVersion(JNIEnv *env, jclass clazz) {
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_qiniu_client_curl_Curl_getCurlVersion(JNIEnv *env, jclass clazz) {
     if (env == nullptr) {
         return nullptr;
     }
@@ -434,76 +439,78 @@ extern "C" JNIEXPORT jstring JNICALL Java_com_qiniu_client_curl_Curl_getCurlVers
 }
 
 extern "C" JNIEXPORT void JNICALL Java_com_qiniu_client_curl_Curl_requestNative(JNIEnv *env,
-                                                                         jobject curlObj,
-                                                                         jobject curlRequest,
-                                                                         jobject configure,
-                                                                         jobject curlHandler) {
+                                                                                jobject curlObj,
+                                                                                jobject curlRequest,
+                                                                                jobject configure,
+                                                                                jobject curlHandler) {
 
 
     CURLcode errorCode = CURLE_OK;
     const char *errorInfo = nullptr;
 
     // context
-    struct CurlContext curlContext{};
-    curlContext.env = env;
-    curlContext.curlObj = curlObj;
-    curlContext.curlHandler = curlHandler;
-    curlContext.responseHeaderFields = nullptr;
-    curlContext.metrics = createJavaMetrics(&curlContext);
-    curlContext.totalBytesSent = 0;
-    curlContext.totalBytesReceive = 0;
-    curlContext.totalBytesExpectedToSend = 0;
-    curlContext.totalBytesExpectedToReceive = 0;
+    CurlContext *curlContext = new CurlContext();
+    curlContext->env = env;
+    curlContext->curlObj = curlObj;
+    curlContext->curlHandler = curlHandler;
+    curlContext->responseHeaderFields = nullptr;
+    curlContext->metrics = createJavaMetrics(curlContext);
+    curlContext->totalBytesSent = 0;
+    curlContext->totalBytesReceive = 0;
+    curlContext->totalBytesExpectedToSend = 0;
+    curlContext->totalBytesExpectedToReceive = 0;
 
-    setCurlContextWithRequest(env, &curlContext, curlRequest);
-    setCurlContextWithConfiguration(env, &curlContext, configure);
+    setCurlContextWithRequest(env, curlContext, curlRequest);
+    setCurlContextWithConfiguration(env, curlContext, configure);
 
     // start time
-    setJavaMetricsStartTimestamp(&curlContext);
+    setJavaMetricsStartTimestamp(curlContext);
 
     CURL *curl = curl_easy_init();
     if (curl == nullptr) {
         goto curl_perform_complete_error;
     }
 
-    initCurlRequestDefaultOptions(curl, &curlContext, &errorCode,
+    initCurlRequestDefaultOptions(curl, curlContext, &errorCode,
                                   reinterpret_cast<const char **>(&errorInfo));
     if (errorInfo != nullptr) {
         goto curl_perform_complete_error;
     }
-    initCurlRequestCustomOptions(curl, &curlContext);
+    initCurlRequestCustomOptions(curl, curlContext);
 
-    initCurlRequestDownloadData(curl, &curlContext, &errorCode,
+    initCurlRequestDownloadData(curl, curlContext, &errorCode,
                                 reinterpret_cast<const char **>(&errorInfo));
     if (errorInfo != nullptr) {
         goto curl_perform_complete_error;
     }
-    initCurlDnsResolver(curl, &curlContext);
-    initCurlRequestProxy(curl, &curlContext);
-    initCurlRequestHeader(curl, &curlContext, &errorCode,
+    initCurlDnsResolver(curl, curlContext);
+    initCurlRequestProxy(curl, curlContext);
+    initCurlRequestHeader(curl, curlContext, &errorCode,
                           reinterpret_cast<const char **>(&errorInfo));
     if (errorInfo != nullptr) {
         goto curl_perform_complete_error;
     }
-    initCurlRequestUrl(curl, &curlContext, &errorCode, reinterpret_cast<const char **>(&errorInfo));
+    initCurlRequestUrl(curl, curlContext, &errorCode, reinterpret_cast<const char **>(&errorInfo));
     if (errorInfo != nullptr) {
         goto curl_perform_complete_error;
     }
-    initCurlRequestMethodAndRequestData(curl, &curlContext, &errorCode, reinterpret_cast<const char **>(&errorInfo));
+    initCurlRequestMethodAndRequestData(curl, curlContext, &errorCode,
+                                        reinterpret_cast<const char **>(&errorInfo));
     if (errorInfo != nullptr) {
         goto curl_perform_complete_error;
     }
 
     performRequest(curl, &errorCode, reinterpret_cast<const char **>(&errorInfo));
 
-    handleResponse(&curlContext, curl);
+    handleResponse(curlContext, curl);
 
     curl_perform_complete_error:
-    handleMetrics(&curlContext, curl);
+    handleMetrics(curlContext, curl);
 
-    completeWithError(&curlContext, transformCurlStatusCode(errorCode), reinterpret_cast<const char *>(&errorInfo));
+    completeWithError(curlContext, transformCurlStatusCode(errorCode),
+                      reinterpret_cast<const char *>(&errorInfo));
 
-    releaseCurlContext(&curlContext);
+    delete curlContext;
     if (curl != nullptr) {
         curl_easy_cleanup(curl);
     }

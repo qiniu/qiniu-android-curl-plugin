@@ -4,8 +4,6 @@
 #include <curl/curl.h>
 #include "curl_utils.h"
 #include "curl_context.h"
-#include <stdlib.h>
-#include <string.h>
 
 struct curl_slist * getJavaCurlConfigurationDnsResolverArray(JNIEnv *env, jobject curlConfiguration) {
     if (env == nullptr || curlConfiguration == nullptr) {
@@ -36,16 +34,10 @@ struct curl_slist * getJavaCurlConfigurationDnsResolverArray(JNIEnv *env, jobjec
         jstring dnsResolver = (jstring) env->GetObjectArrayElement(dnsResolverArray, i);
 
         jboolean isCopy;
-        const char *dnsResolver_char = env->GetStringUTFChars(dnsResolver, &isCopy);
-        if (dnsResolver_char != nullptr) {
-            size_t dnsResolver_char_size = strlen(dnsResolver_char);
-            char *dnsResolver_char_cp = (char *) malloc(dnsResolver_char_size);
-            memset(dnsResolver_char_cp, '\0', dnsResolver_char_size);
-            strcpy(dnsResolver_char_cp, dnsResolver_char);
-
-            dnsResolverList = curl_slist_append(dnsResolverList, dnsResolver_char_cp);
-
-            env->ReleaseStringUTFChars(dnsResolver, dnsResolver_char);
+        const char *dnsResolverChar = env->GetStringUTFChars(dnsResolver, &isCopy);
+        if (dnsResolverChar != nullptr) {
+            dnsResolverList = curl_slist_append(dnsResolverList, dnsResolverChar);
+            env->ReleaseStringUTFChars(dnsResolver, dnsResolverChar);
         }
 
         env->DeleteLocalRef(dnsResolver);
@@ -57,7 +49,7 @@ struct curl_slist * getJavaCurlConfigurationDnsResolverArray(JNIEnv *env, jobjec
     return dnsResolverList;
 }
 
-char * getJavaCurlConfigurationProxy(JNIEnv *env, jobject curlConfiguration) {
+std::string getJavaCurlConfigurationProxy(JNIEnv *env, jobject curlConfiguration) {
     if (env == nullptr || curlConfiguration == nullptr) {
         return nullptr;
     }
@@ -75,18 +67,14 @@ char * getJavaCurlConfigurationProxy(JNIEnv *env, jobject curlConfiguration) {
         return nullptr;
     }
 
-    char *proxy_char = nullptr;
+    std::string proxyString;
     jstring proxy = (jstring) env->CallObjectMethod(curlConfiguration, getProxy_method);
     if (proxy != nullptr) {
         jboolean isCopy;
-        char *proxy_char_p = const_cast<char *>(env->GetStringUTFChars(proxy, &isCopy));
-        if (proxy_char_p != nullptr) {
-            size_t proxy_char_size = strlen(proxy_char_p);
-            proxy_char = (char *) malloc(proxy_char_size);
-            memset(proxy_char, '\0', proxy_char_size);
-            strcpy(proxy_char, proxy_char_p);
-
-            env->ReleaseStringUTFChars(proxy, proxy_char_p);
+        char *proxyChar = const_cast<char *>(env->GetStringUTFChars(proxy, &isCopy));
+        if (proxyChar != nullptr) {
+            proxyString = proxyChar;
+            env->ReleaseStringUTFChars(proxy, proxyChar);
         }
 
     }
@@ -94,10 +82,10 @@ char * getJavaCurlConfigurationProxy(JNIEnv *env, jobject curlConfiguration) {
     env->DeleteLocalRef(config_class);
     env->DeleteLocalRef(proxy);
 
-    return proxy_char;
+    return proxyString;
 }
 
-char *getJavaCurlConfigurationProxyUserPwd(JNIEnv *env, jobject curlConfiguration) {
+std::string getJavaCurlConfigurationProxyUserPwd(JNIEnv *env, jobject curlConfiguration) {
     if (env == nullptr || curlConfiguration == nullptr) {
         return nullptr;
     }
@@ -115,18 +103,14 @@ char *getJavaCurlConfigurationProxyUserPwd(JNIEnv *env, jobject curlConfiguratio
         return nullptr;
     }
 
-    char *userPwd_char = nullptr;
+    std::string userPwdString;
     jstring userPwd = (jstring) env->CallObjectMethod(curlConfiguration, getProxyUserPwd_method);
     if (userPwd != nullptr) {
         jboolean isCopy;
-        char *userPwd_char_p = const_cast<char *>(env->GetStringUTFChars(userPwd, &isCopy));
-        if (userPwd_char_p != nullptr) {
-            size_t userPwd_char_size = strlen(userPwd_char_p);
-            userPwd_char = (char *) malloc(userPwd_char_size);
-            memset(userPwd_char, '\0', userPwd_char_size);
-            strcpy(userPwd_char, userPwd_char_p);
-
-            env->ReleaseStringUTFChars(userPwd, userPwd_char_p);
+        char *userPwdChar = const_cast<char *>(env->GetStringUTFChars(userPwd, &isCopy));
+        if (userPwdChar != nullptr) {
+            userPwdString = userPwdChar;
+            env->ReleaseStringUTFChars(userPwd, userPwdChar);
         }
 
     }
@@ -134,11 +118,11 @@ char *getJavaCurlConfigurationProxyUserPwd(JNIEnv *env, jobject curlConfiguratio
     env->DeleteLocalRef(config_class);
     env->DeleteLocalRef(userPwd);
 
-    return userPwd_char;
+    return userPwdString;
 }
 
 
-char *getJavaCurlConfigurationCAPath(JNIEnv *env, jobject curlConfiguration) {
+std::string getJavaCurlConfigurationCAPath(JNIEnv *env, jobject curlConfiguration) {
     if (env == nullptr || curlConfiguration == nullptr) {
         return nullptr;
     }
@@ -156,25 +140,21 @@ char *getJavaCurlConfigurationCAPath(JNIEnv *env, jobject curlConfiguration) {
         return nullptr;
     }
 
-    char *caPath_char = nullptr;
+    std::string caPathString;
     jstring caPath = (jstring) env->CallObjectMethod(curlConfiguration, getCAPath_method);
     if (caPath != nullptr) {
         jboolean isCopy;
-        char *caPath_char_p = const_cast<char *>(env->GetStringUTFChars(caPath, &isCopy));
-        if (caPath_char_p != nullptr) {
-            size_t userPwd_char_size = strlen(caPath_char_p);
-            caPath_char = (char *) malloc(userPwd_char_size);
-            memset(caPath_char, '\0', userPwd_char_size);
-            strcpy(caPath_char, caPath_char_p);
-
-            env->ReleaseStringUTFChars(caPath, caPath_char_p);
+        char *caPathChar = const_cast<char *>(env->GetStringUTFChars(caPath, &isCopy));
+        if (caPathChar != nullptr) {
+            caPathString = caPathChar;
+            env->ReleaseStringUTFChars(caPath, caPathChar);
         }
     }
 
     env->DeleteLocalRef(config_class);
     env->DeleteLocalRef(caPath);
 
-    return caPath_char;
+    return caPathString;
 }
 
 void setCurlContextWithConfiguration(JNIEnv *env, CurlContext *curlContext, jobject curlConfiguration){

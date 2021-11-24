@@ -2,12 +2,10 @@
 // Created by yangsen on 2020/9/18.
 //
 #include <jni.h>
-#include <stdlib.h>
-#include <string.h>
 #include "curl_jni_call_back.h"
 #include "curl_context.h"
 
-void receiveResponse(CurlContext *curlContext, char *url, int statusCode, char *httpVersion,
+void receiveResponse(CurlContext *curlContext, const std::string& url, int statusCode, const std::string& httpVersion,
                      struct curl_slist *headerFields) {
     if (curlContext == nullptr) {
         return;
@@ -36,11 +34,11 @@ void receiveResponse(CurlContext *curlContext, char *url, int statusCode, char *
     jstring httpVersion_string = nullptr;
     jobjectArray headerFieldArray = nullptr;
 
-    if (url != nullptr) {
-        url_string = env->NewStringUTF(url);
+    if (!url.empty()) {
+        url_string = env->NewStringUTF(url.c_str());
     }
-    if (httpVersion != nullptr) {
-        httpVersion_string = env->NewStringUTF(httpVersion);
+    if (!httpVersion.empty()) {
+        httpVersion_string = env->NewStringUTF(httpVersion.c_str());
     }
     if (headerFields != nullptr && headerFields->data != nullptr) {
         jsize size = 0;
@@ -82,7 +80,7 @@ void receiveResponse(CurlContext *curlContext, char *url, int statusCode, char *
     env->DeleteLocalRef(headerFieldArray);
 }
 
-size_t sendData(struct CurlContext *curlContext, char *buffer, long long dataLength) {
+size_t sendData(CurlContext *curlContext, char *buffer, long long dataLength) {
     if (curlContext == nullptr) {
         return static_cast<size_t>(-1);
     }
@@ -123,7 +121,7 @@ size_t sendData(struct CurlContext *curlContext, char *buffer, long long dataLen
     return readLength;
 }
 
-size_t receiveData(struct CurlContext *curlContext, char *buffer, size_t size) {
+size_t receiveData(CurlContext *curlContext, char *buffer, size_t size) {
     if (curlContext == nullptr) {
         return static_cast<size_t>(-1);
     }
@@ -158,7 +156,7 @@ size_t receiveData(struct CurlContext *curlContext, char *buffer, size_t size) {
     return size;
 }
 
-void completeWithError(struct CurlContext *curlContext, int errorCode, const char *errorInfo) {
+void completeWithError(CurlContext *curlContext, int errorCode, const char *errorInfo) {
     if (curlContext == nullptr) {
         return;
     }
@@ -192,7 +190,7 @@ void completeWithError(struct CurlContext *curlContext, int errorCode, const cha
     env->DeleteLocalRef(errorInfo_string);
 }
 
-void sendProgress(struct CurlContext *curlContext, long long bytesSent, long long totalBytesSent,
+void sendProgress(CurlContext *curlContext, long long bytesSent, long long totalBytesSent,
                   long long totalBytesExpectedToSend) {
     if (curlContext == nullptr) {
         return;
@@ -223,7 +221,7 @@ void sendProgress(struct CurlContext *curlContext, long long bytesSent, long lon
     env->DeleteLocalRef(handler_class);
 }
 
-void receiveProgress(struct CurlContext *curlContext, long long bytesReceive,
+void receiveProgress(CurlContext *curlContext, long long bytesReceive,
                      long long totalBytesReceive, long long totalBytesExpectedToReceive) {
     if (curlContext == nullptr) {
         return;
@@ -254,10 +252,7 @@ void receiveProgress(struct CurlContext *curlContext, long long bytesReceive,
     env->DeleteLocalRef(handler_class);
 }
 
-void didFinishCollectingMetrics(struct CurlContext *curlContext) {
-    if (curlContext == nullptr) {
-        return;
-    }
+void didFinishCollectingMetrics(CurlContext *curlContext) {
 
     jobject curlHandler = curlContext->curlHandler;
     JNIEnv *env = curlContext->env;

@@ -22,7 +22,7 @@ void setJavaMetricsLocalAddress(CurlContext *curlContext, char *fieldValue);
 
 void setJavaMetricsLocalPort(CurlContext *curlContext, long long fieldValue);
 
-void setJavaMetricsRemoteAddress(CurlContext *curlContext, char *fieldValue);
+void setJavaMetricsRemoteAddress(CurlContext *urlContext, char *fieldValue);
 
 void setJavaMetricsRemotePort(CurlContext *curlContext, long long fieldValue);
 
