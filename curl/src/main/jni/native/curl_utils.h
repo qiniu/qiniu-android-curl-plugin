@@ -4,6 +4,7 @@
 
 #include <jni.h>
 #include <string>
+#include <vector>
 #include "curl_context.h"
 
 #ifndef UPLOADDEMO_ANDROID_CURL_UTILS_H
@@ -13,6 +14,6 @@
 std::string getCurlVersion();
 
 // 返回的char *需要delete
-char* curlUtilConvertJByteArrayToChars(JNIEnv *env, jbyteArray byteArray);
+std::vector<char> curlUtilConvertJByteArrayToChars(JNIEnv *env, jbyteArray byteArray);
 
 #endif //UPLOADDEMO_ANDROID_CURL_UTILS_H
