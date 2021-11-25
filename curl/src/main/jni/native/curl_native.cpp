@@ -455,52 +455,52 @@ extern "C" JNIEXPORT void JNICALL Java_com_qiniu_client_curl_Curl_requestNative(
     const char *errorInfo = nullptr;
 
     // context
-    CurlContext *curlContext = new CurlContext();
-    curlContext->env = env;
-    curlContext->curlObj = curlObj;
-    curlContext->curlHandler = curlHandler;
-    curlContext->responseHeaderFields = nullptr;
-    curlContext->metrics = createJavaMetrics(curlContext);
-    curlContext->totalBytesSent = 0;
-    curlContext->totalBytesReceive = 0;
-    curlContext->totalBytesExpectedToSend = 0;
-    curlContext->totalBytesExpectedToReceive = 0;
+    CurlContext curlContext;
+    curlContext.env = env;
+    curlContext.curlObj = curlObj;
+    curlContext.curlHandler = curlHandler;
+    curlContext.responseHeaderFields = nullptr;
+    curlContext.metrics = createJavaMetrics(&curlContext);
+    curlContext.totalBytesSent = 0;
+    curlContext.totalBytesReceive = 0;
+    curlContext.totalBytesExpectedToSend = 0;
+    curlContext.totalBytesExpectedToReceive = 0;
 
-    setCurlContextWithRequest(env, curlContext, curlRequest);
-    setCurlContextWithConfiguration(env, curlContext, configure);
+    setCurlContextWithRequest(env, &curlContext, curlRequest);
+    setCurlContextWithConfiguration(env, &curlContext, configure);
 
     // start time
-    setJavaMetricsStartTimestamp(curlContext);
+    setJavaMetricsStartTimestamp(&curlContext);
 
     CURL *curl = curl_easy_init();
     if (curl == nullptr) {
         goto curl_perform_complete_error;
     }
 
-    initCurlRequestDefaultOptions(curl, curlContext, &errorCode,
+    initCurlRequestDefaultOptions(curl, &curlContext, &errorCode,
                                   reinterpret_cast<const char **>(&errorInfo));
     if (errorInfo != nullptr) {
         goto curl_perform_complete_error;
     }
-    initCurlRequestCustomOptions(curl, curlContext);
+    initCurlRequestCustomOptions(curl, &curlContext);
 
-    initCurlRequestDownloadData(curl, curlContext, &errorCode,
+    initCurlRequestDownloadData(curl, &curlContext, &errorCode,
                                 reinterpret_cast<const char **>(&errorInfo));
     if (errorInfo != nullptr) {
         goto curl_perform_complete_error;
     }
-    initCurlDnsResolver(curl, curlContext);
-    initCurlRequestProxy(curl, curlContext);
-    initCurlRequestHeader(curl, curlContext, &errorCode,
+    initCurlDnsResolver(curl, &curlContext);
+    initCurlRequestProxy(curl, &curlContext);
+    initCurlRequestHeader(curl, &curlContext, &errorCode,
                           reinterpret_cast<const char **>(&errorInfo));
     if (errorInfo != nullptr) {
         goto curl_perform_complete_error;
     }
-    initCurlRequestUrl(curl, curlContext, &errorCode, reinterpret_cast<const char **>(&errorInfo));
+    initCurlRequestUrl(curl, &curlContext, &errorCode, reinterpret_cast<const char **>(&errorInfo));
     if (errorInfo != nullptr) {
         goto curl_perform_complete_error;
     }
-    initCurlRequestMethodAndRequestData(curl, curlContext, &errorCode,
+    initCurlRequestMethodAndRequestData(curl, &curlContext, &errorCode,
                                         reinterpret_cast<const char **>(&errorInfo));
     if (errorInfo != nullptr) {
         goto curl_perform_complete_error;
@@ -508,18 +508,16 @@ extern "C" JNIEXPORT void JNICALL Java_com_qiniu_client_curl_Curl_requestNative(
 
     performRequest(curl, &errorCode, reinterpret_cast<const char **>(&errorInfo));
 
-    handleResponse(curlContext, curl);
+    handleResponse(&curlContext, curl);
 
     curl_perform_complete_error:
-    handleMetrics(curlContext, curl);
+    handleMetrics(&curlContext, curl);
 
-    completeWithError(curlContext, transformCurlStatusCode(errorCode),
+    completeWithError(&curlContext, transformCurlStatusCode(errorCode),
                       reinterpret_cast<const char *>(&errorInfo));
 
     if (curl != nullptr) {
         curl_easy_cleanup(curl);
     }
-
-    delete curlContext;
 }
 
