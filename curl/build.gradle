@@ -1,0 +1,100 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 30
+    buildToolsVersion "30.0.3"
+
+    defaultConfig {
+        minSdkVersion 22
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles 'consumer-rules.pro'
+
+        ndk{
+            moduleName "qn-curl"
+            abiFilters "x86_64", "x86", "armeabi-v7a", "arm64-v8a"
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+
+        externalNativeBuild {
+            ndkBuild {
+                path 'src/main/jni/Android.mk'
+            }
+        }
+
+        sourceSets.main {
+            jni.srcDirs = []
+            jniLibs.srcDirs = ['src/main/jni']
+        }
+    }
+
+    sourceSets.main {
+        assets.srcDirs = ['src/main/assets']
+        jni.srcDirs = []
+        jniLibs.srcDirs = ['src/main/jni']
+    }
+
+    repositories {
+        mavenLocal()
+    }
+
+    compileOptions {
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'so_libs', include: ['*.jar'])
+
+    implementation 'com.qiniu:qiniu-android-sdk:8.5.0'
+
+//    implementation 'androidx.appcompat:appcompat:1.3.1'
+//    implementation 'com.google.android.material:material:1.4.0'
+//    implementation 'androidx.constraintlayout:constraintlayout:2.1.1'
+    androidTestImplementation 'org.testng:testng:6.9.6'
+
+    androidTestImplementation 'junit:junit:4.13'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+//
+    androidTestImplementation("androidx.fragment:fragment-testing:1.4.0-beta01")
+    androidTestImplementation("androidx.fragment:fragment-ktx:1.4.0-beta01")
+    androidTestImplementation "androidx.test:runner:1.4.0"
+    androidTestImplementation "androidx.test:core:1.4.0"
+    androidTestImplementation "androidx.test.ext:junit:1.1.3"
+    androidTestImplementation "androidx.test:rules:1.4.0"
+}
+
+task generateSourcesJar(type: Jar) {
+    group = 'jar'
+    from android.sourceSets.main.java.srcDirs
+    classifier 'sources'
+}
+
+task generateResourceJar(type: Jar) {
+    group = 'jar'
+    archiveClassifier.set('resource')
+    from('./resource')
+}
+
+task generateSoJar(type: Jar) {
+    group = 'jar'
+    archiveClassifier.set('so')
+    from('./so_libs')
+}
+
+task generateMergeJar(type: Jar, dependsOn:['generateSoJar', 'generateSourcesJar', 'generateResourceJar']) {
+    group = 'jar'
+    from(project.zipTree('build/libs/curl-so.jar'))
+    from(project.zipTree('build/libs/curl-resource.jar'))
+    from(project.zipTree('build/intermediates/aar_main_jar/release/classes.jar'))
+}

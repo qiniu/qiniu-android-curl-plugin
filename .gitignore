@@ -1,3 +1,6 @@
+# curl .so
+so_libs/
+
 # Built application files
 *.apk
 *.aar
