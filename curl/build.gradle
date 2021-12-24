@@ -74,27 +74,32 @@ dependencies {
     androidTestImplementation "androidx.test:rules:1.4.0"
 }
 
-task generateSourcesJar(type: Jar) {
-    group = 'jar'
-    from android.sourceSets.main.java.srcDirs
-    classifier 'sources'
-}
+apply plugin: 'maven-publish'
 
-task generateResourceJar(type: Jar) {
-    group = 'jar'
-    archiveClassifier.set('resource')
-    from('./resource')
-}
+//以下与dependencies{}同级
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'com.qiniu'
+            artifactId = 'qiniu-android-curl-plugin'
+            version = '1.0.0'
 
-task generateSoJar(type: Jar) {
-    group = 'jar'
-    archiveClassifier.set('so')
-    from('./so_libs')
-}
+            afterEvaluate { artifact(tasks.getByName("bundleReleaseAar")) }
 
-task generateMergeJar(type: Jar, dependsOn:['generateSoJar', 'generateSourcesJar', 'generateResourceJar']) {
-    group = 'jar'
-    from(project.zipTree('build/libs/curl-so.jar'))
-    from(project.zipTree('build/libs/curl-resource.jar'))
-    from(project.zipTree('build/intermediates/aar_main_jar/release/classes.jar'))
+            pom.withXml{
+                def dependenciesNode = asNode().appendNode("dependencies")
+                configurations.implementation.allDependencies.forEach(){
+                    Dependency dependency ->
+                        if (dependency.version != "unspecified" && dependency.name != "unspecified"){
+                            def dependencyNode = dependenciesNode.appendNode('dependency')
+                            dependencyNode.appendNode('groupId', dependency.group)
+                            dependencyNode.appendNode('artifactId', dependency.name)
+                            dependencyNode.appendNode('version', dependency.version)
+                        }
+                }
+            }
+        }
+    }
+//本地地址
+    repositories { maven { url = "file:/Users/senyang/.m2/repository/" } }
 }
