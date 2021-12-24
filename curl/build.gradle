@@ -73,33 +73,3 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:1.1.3"
     androidTestImplementation "androidx.test:rules:1.4.0"
 }
-
-apply plugin: 'maven-publish'
-
-//以下与dependencies{}同级
-publishing {
-    publications {
-        maven(MavenPublication) {
-            groupId = 'com.qiniu'
-            artifactId = 'qiniu-android-curl-plugin'
-            version = '1.0.0'
-
-            afterEvaluate { artifact(tasks.getByName("bundleReleaseAar")) }
-
-            pom.withXml{
-                def dependenciesNode = asNode().appendNode("dependencies")
-                configurations.implementation.allDependencies.forEach(){
-                    Dependency dependency ->
-                        if (dependency.version != "unspecified" && dependency.name != "unspecified"){
-                            def dependencyNode = dependenciesNode.appendNode('dependency')
-                            dependencyNode.appendNode('groupId', dependency.group)
-                            dependencyNode.appendNode('artifactId', dependency.name)
-                            dependencyNode.appendNode('version', dependency.version)
-                        }
-                }
-            }
-        }
-    }
-//本地地址
-    repositories { maven { url = "file:/Users/senyang/.m2/repository/" } }
-}
