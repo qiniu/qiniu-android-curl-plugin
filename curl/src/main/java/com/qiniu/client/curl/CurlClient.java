@@ -173,6 +173,7 @@ public class CurlClient extends IRequestClient {
 
                 ResponseInfo responseInfo = ResponseInfo.create(request, statusCode, header, response, errorInfo);
                 metrics.setResponse(responseInfo);
+                metrics.end();
                 if (complete != null) {
                     complete.complete(responseInfo, metrics, response);
                 }
@@ -194,7 +195,6 @@ public class CurlClient extends IRequestClient {
 
             @Override
             public void didFinishCollectingMetrics(CurlTransactionMetrics transactionMetrics) {
-                metrics.end();
                 metrics.setClientName(getClientId());
                 metrics.setClientVersion(getCurlVersionInfo());
                 if (transactionMetrics != null) {
