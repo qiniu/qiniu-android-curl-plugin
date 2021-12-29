@@ -45,6 +45,7 @@ public class CurlClient extends IRequestClient {
         }
 
         this.request = request;
+        metrics.setRequest(request);
 
         String host = server != null ? server.getHost() : null;
         String ip = server != null ? server.getIp() : null;
@@ -171,6 +172,7 @@ public class CurlClient extends IRequestClient {
                 releaseResource();
 
                 ResponseInfo responseInfo = ResponseInfo.create(request, statusCode, header, response, errorInfo);
+                metrics.setResponse(responseInfo);
                 if (complete != null) {
                     complete.complete(responseInfo, metrics, response);
                 }

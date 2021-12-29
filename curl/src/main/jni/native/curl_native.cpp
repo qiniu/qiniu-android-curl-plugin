@@ -376,13 +376,13 @@ void handleMetrics(CurlContext *curlContext, CURL *curl) {
 //    kCurlLogD("total_time:%ld, name_lookup_time:%ld, connect_time:%ld, app_connect_time:%ld, pre_transfer_time:%ld, start_transfer_time:%ld, redirect_time:%ld, redirect_count:%ld",
 //              (long)total_time, (long)name_lookup_time, (long)connect_time, (long)app_connect_time, (long)pre_transfer_time, (long)start_transfer_time, (long)redirect_time, (long)redirect_count);
 
-    setJavaMetricsTotalTime(curlContext, total_time);
-    setJavaMetricsNameLookupTime(curlContext, name_lookup_time);
-    setJavaMetricsConnectTime(curlContext, connect_time);
-    setJavaMetricsAppConnectTime(curlContext, app_connect_time);
-    setJavaMetricsPreTransferTime(curlContext, pre_transfer_time);
-    setJavaMetricsStartTransferTime(curlContext, start_transfer_time);
-    setJavaMetricsRedirectTime(curlContext, redirect_time);
+    setJavaMetricsTotalTime(curlContext, total_time/1000);
+    setJavaMetricsNameLookupTime(curlContext, name_lookup_time/1000);
+    setJavaMetricsConnectTime(curlContext, connect_time/1000);
+    setJavaMetricsAppConnectTime(curlContext, app_connect_time/1000);
+    setJavaMetricsPreTransferTime(curlContext, pre_transfer_time/1000);
+    setJavaMetricsStartTransferTime(curlContext, start_transfer_time/1000);
+    setJavaMetricsRedirectTime(curlContext, redirect_time/1000);
 
     curl_off_t request_header_size, request_body_size, response_header_size, response_body_size;
     if (curlContext->requestHeaderFields != nullptr) {
