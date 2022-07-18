@@ -46,6 +46,7 @@ public class CurlClient extends IRequestClient {
 
         this.request = request;
         metrics.setRequest(request);
+        metrics.start();
 
         String host = server != null ? server.getHost() : null;
         String ip = server != null ? server.getIp() : null;
@@ -108,7 +109,6 @@ public class CurlClient extends IRequestClient {
                          final RequestClientProgress progress,
                          final RequestClientCompleteHandler complete) {
 
-        metrics.start();
         responseDataStream = new ByteArrayOutputStream();
         curl = new Curl();
         curl.request(curlRequest, configuration, new Curl.Handler() {
@@ -147,8 +147,6 @@ public class CurlClient extends IRequestClient {
 
             @Override
             public void completeWithError(int errorCode, String errorInfo) {
-                metrics.end();
-
                 int statusCode = errorCode;
                 Map<String, String> header = null;
                 JSONObject response = null;

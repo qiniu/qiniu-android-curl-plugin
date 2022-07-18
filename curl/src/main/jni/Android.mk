@@ -20,7 +20,7 @@ LOCAL_PATH := $(call my-dir)
 
 #cURL prebuilt
 include $(CLEAR_VARS)
-LOCAL_MODULE := curl-built
+LOCAL_MODULE := curl-builtstrip
 LOCAL_SRC_FILES := \
   $(LOCAL_PATH)/lib/$(TARGET_ARCH_ABI)/libcurl.a
 include $(PREBUILT_STATIC_LIBRARY)
@@ -39,11 +39,15 @@ LOCAL_SRC_FILES := $(MY_CPP_LIST:$(LOCAL_PATH)/%=%)
 #	$(LOCAL_PATH)/native/curl_configuration.cpp
 
 LOCAL_STATIC_LIBRARIES := curl-built
-COMMON_CFLAGS := -Werror -DANDROID
+COMMON_CFLAGS := -Werror -DANDROID -Os -ffunction-sections -fdata-sections
 
 ifeq ($(TARGET_ARCH),arm)
   LOCAL_CFLAGS := -mfpu=vfp -mfloat-abi=softfp -fno-short-enums
 endif
+
+
+LOCAL_LDFLAGS += -Wl,--gc-sections
+LOCAL_CPPFLAGS += -Os -ffunction-sections -fdata-sections
 
 LOCAL_CFLAGS += $(COMMON_CFLAGS)
 #LOCAL_LDLIBS := -lz -llog -Wl,-s
