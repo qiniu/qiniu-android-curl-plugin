@@ -15,7 +15,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -237,7 +236,7 @@ public class CurlClient extends IRequestClient {
     }
 
     String getCurlVersionInfo() {
-        return config.version + ";" + Curl.getCurlVersion();
+        return Constants.VERSION + ";" + Curl.getCurlVersion();
     }
 
     void userAgentAddCurlVersion(CurlRequest request) {
