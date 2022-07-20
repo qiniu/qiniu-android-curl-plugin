@@ -21,12 +21,24 @@ import java.util.Set;
 
 public class CurlClient extends IRequestClient {
 
+    private String caPath;
     private Curl curl = null;
     private Request request = null;
     private CurlResponse curlResponse = null;
     private UploadSingleRequestMetrics metrics = new UploadSingleRequestMetrics();
     private ByteArrayInputStream requestDataStream = null;
     private ByteArrayOutputStream responseDataStream = null;
+
+    public CurlClient() {
+    }
+
+    /**
+     * @param caPath 如果想自定义 CA 可设置此选项，此处为 CA 文件的路径
+     *               CA 文件参考：https://curl.se/ca/cacert.pem
+     */
+    public CurlClient(String caPath) {
+        this.caPath = caPath;
+    }
 
     @Override
     public void request(Request request,
@@ -50,6 +62,7 @@ public class CurlClient extends IRequestClient {
         String host = server != null ? server.getHost() : null;
         String ip = server != null ? server.getIp() : null;
         CurlConfiguration.Builder builder = new CurlConfiguration.Builder();
+        builder.setCaPath(caPath);
         if (host != null && ip != null) {
             int port = request.urlString.contains("https://") ? 443 : 80;
             CurlConfiguration.DnsResolver resolver = new CurlConfiguration.DnsResolver(host, ip, port);
