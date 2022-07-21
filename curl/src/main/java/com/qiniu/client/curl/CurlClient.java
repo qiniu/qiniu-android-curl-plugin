@@ -43,8 +43,8 @@ public class CurlClient extends IRequestClient {
     @Override
     public void request(Request request,
                         Options options,
-                        RequestClientProgress progress,
-                        RequestClientCompleteHandler complete) {
+                        Progress progress,
+                        CompleteHandler complete) {
 
         IUploadServer server = null;
         ProxyConfiguration connectionProxy = null;
@@ -118,8 +118,8 @@ public class CurlClient extends IRequestClient {
 
     private void request(CurlRequest curlRequest,
                          CurlConfiguration configuration,
-                         final RequestClientProgress progress,
-                         final RequestClientCompleteHandler complete) {
+                         final Progress progress,
+                         final CompleteHandler complete) {
 
         responseDataStream = new ByteArrayOutputStream();
         curl = new Curl();

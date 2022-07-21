@@ -41,11 +41,13 @@ LOCAL_STATIC_LIBRARIES := curl-built
 
 LOCAL_LDFLAGS += -Wl,--gc-sections
 
-LOCAL_CPPFLAGS += -Os -std=gnu++0x
-LOCAL_CPPFLAGS += -ffunction-sections -fdata-sections -fvisibility=hidden
+LOCAL_CPPFLAGS += -std=gnu++0x
+#LOCAL_CPPFLAGS += -Os
+#LOCAL_CPPFLAGS += -ffunction-sections -fdata-sections -fvisibility=hidden
 
-LOCAL_CFLAGS := -Werror -DANDROID -Os
-LOCAL_CFLAGS += -ffunction-sections -fdata-sections
+LOCAL_CFLAGS := -Werror -DANDROID
+#LOCAL_CFLAGS += -Os
+#LOCAL_CFLAGS += -ffunction-sections -fdata-sections
 ifeq ($(TARGET_ARCH),arm)
   LOCAL_CFLAGS += -mfpu=vfp -mfloat-abi=softfp -fno-short-enums
 endif
