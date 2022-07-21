@@ -15,13 +15,13 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
 public class CurlClient extends IRequestClient {
 
+    private String caPath;
     private Curl curl = null;
     private Request request = null;
     private CurlResponse curlResponse = null;
@@ -29,11 +29,22 @@ public class CurlClient extends IRequestClient {
     private ByteArrayInputStream requestDataStream = null;
     private ByteArrayOutputStream responseDataStream = null;
 
+    public CurlClient() {
+    }
+
+    /**
+     * @param caPath 如果想自定义 CA 可设置此选项，此处为 CA 文件的路径
+     *               CA 文件参考：https://curl.se/ca/cacert.pem
+     */
+    public CurlClient(String caPath) {
+        this.caPath = caPath;
+    }
+
     @Override
     public void request(Request request,
                         Options options,
-                        RequestClientProgress progress,
-                        RequestClientCompleteHandler complete) {
+                        Progress progress,
+                        CompleteHandler complete) {
 
         IUploadServer server = null;
         ProxyConfiguration connectionProxy = null;
@@ -45,10 +56,13 @@ public class CurlClient extends IRequestClient {
         }
 
         this.request = request;
+        metrics.setRequest(request);
+        metrics.start();
 
         String host = server != null ? server.getHost() : null;
         String ip = server != null ? server.getIp() : null;
         CurlConfiguration.Builder builder = new CurlConfiguration.Builder();
+        builder.setCaPath(caPath);
         if (host != null && ip != null) {
             int port = request.urlString.contains("https://") ? 443 : 80;
             CurlConfiguration.DnsResolver resolver = new CurlConfiguration.DnsResolver(host, ip, port);
@@ -104,10 +118,9 @@ public class CurlClient extends IRequestClient {
 
     private void request(CurlRequest curlRequest,
                          CurlConfiguration configuration,
-                         final RequestClientProgress progress,
-                         final RequestClientCompleteHandler complete) {
+                         final Progress progress,
+                         final CompleteHandler complete) {
 
-        metrics.start();
         responseDataStream = new ByteArrayOutputStream();
         curl = new Curl();
         curl.request(curlRequest, configuration, new Curl.Handler() {
@@ -146,8 +159,6 @@ public class CurlClient extends IRequestClient {
 
             @Override
             public void completeWithError(int errorCode, String errorInfo) {
-                metrics.end();
-
                 int statusCode = errorCode;
                 Map<String, String> header = null;
                 JSONObject response = null;
@@ -171,6 +182,8 @@ public class CurlClient extends IRequestClient {
                 releaseResource();
 
                 ResponseInfo responseInfo = ResponseInfo.create(request, statusCode, header, response, errorInfo);
+                metrics.setResponse(responseInfo);
+                metrics.end();
                 if (complete != null) {
                     complete.complete(responseInfo, metrics, response);
                 }
@@ -192,7 +205,6 @@ public class CurlClient extends IRequestClient {
 
             @Override
             public void didFinishCollectingMetrics(CurlTransactionMetrics transactionMetrics) {
-                metrics.end();
                 metrics.setClientName(getClientId());
                 metrics.setClientVersion(getCurlVersionInfo());
                 if (transactionMetrics != null) {
@@ -237,7 +249,7 @@ public class CurlClient extends IRequestClient {
     }
 
     String getCurlVersionInfo() {
-        return config.version + ";" + Curl.getCurlVersion();
+        return Constants.VERSION + ";" + Curl.getCurlVersion();
     }
 
     void userAgentAddCurlVersion(CurlRequest request) {

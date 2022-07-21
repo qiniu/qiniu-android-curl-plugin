@@ -327,15 +327,15 @@ void handleResponse(CurlContext *curlContext, CURL *curl) {
 
     std::string httpVersionString;
     if (httpVersion == CURL_HTTP_VERSION_1_0) {
-        httpVersionString = "HTTP/1.0";
+        httpVersionString = "1.0";
     } else if (httpVersion == CURL_HTTP_VERSION_1_1) {
-        httpVersionString = "HTTP/1.1";
+        httpVersionString = "1.1";
     } else if (httpVersion == CURL_HTTP_VERSION_2_0 ||
                httpVersion == CURL_HTTP_VERSION_2TLS ||
                httpVersion == CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE) {
-        httpVersionString = "HTTP/2";
+        httpVersionString = "2";
     } else if (httpVersion == CURL_HTTP_VERSION_3) {
-        httpVersionString = "HTTP/3";
+        httpVersionString = "3";
     } else {
         httpVersionString = "";
     }
@@ -361,8 +361,6 @@ void handleMetrics(CurlContext *curlContext, CURL *curl) {
     setJavaMetricsLocalAddress(curlContext, localIP);
     setJavaMetricsRemotePort(curlContext, remotePort);
     setJavaMetricsRemoteAddress(curlContext, remoteIP);
-    free(localIP);
-    free(remoteIP);
 
     curl_off_t total_time, name_lookup_time, connect_time, app_connect_time,
             pre_transfer_time, start_transfer_time, redirect_time, redirect_count;
@@ -378,13 +376,13 @@ void handleMetrics(CurlContext *curlContext, CURL *curl) {
 //    kCurlLogD("total_time:%ld, name_lookup_time:%ld, connect_time:%ld, app_connect_time:%ld, pre_transfer_time:%ld, start_transfer_time:%ld, redirect_time:%ld, redirect_count:%ld",
 //              (long)total_time, (long)name_lookup_time, (long)connect_time, (long)app_connect_time, (long)pre_transfer_time, (long)start_transfer_time, (long)redirect_time, (long)redirect_count);
 
-    setJavaMetricsTotalTime(curlContext, total_time);
-    setJavaMetricsNameLookupTime(curlContext, name_lookup_time);
-    setJavaMetricsConnectTime(curlContext, connect_time);
-    setJavaMetricsAppConnectTime(curlContext, app_connect_time);
-    setJavaMetricsPreTransferTime(curlContext, pre_transfer_time);
-    setJavaMetricsStartTransferTime(curlContext, start_transfer_time);
-    setJavaMetricsRedirectTime(curlContext, redirect_time);
+    setJavaMetricsTotalTime(curlContext, total_time/1000);
+    setJavaMetricsNameLookupTime(curlContext, name_lookup_time/1000);
+    setJavaMetricsConnectTime(curlContext, connect_time/1000);
+    setJavaMetricsAppConnectTime(curlContext, app_connect_time/1000);
+    setJavaMetricsPreTransferTime(curlContext, pre_transfer_time/1000);
+    setJavaMetricsStartTransferTime(curlContext, start_transfer_time/1000);
+    setJavaMetricsRedirectTime(curlContext, redirect_time/1000);
 
     curl_off_t request_header_size, request_body_size, response_header_size, response_body_size;
     if (curlContext->requestHeaderFields != nullptr) {
@@ -513,11 +511,12 @@ extern "C" JNIEXPORT void JNICALL Java_com_qiniu_client_curl_Curl_requestNative(
     curl_perform_complete_error:
     handleMetrics(&curlContext, curl);
 
-    completeWithError(&curlContext, transformCurlStatusCode(errorCode),
-                      reinterpret_cast<const char *>(&errorInfo));
-
     if (curl != nullptr) {
         curl_easy_cleanup(curl);
     }
+
+    completeWithError(&curlContext, transformCurlStatusCode(errorCode),
+                      reinterpret_cast<const char *>(&errorInfo));
+
 }
 
