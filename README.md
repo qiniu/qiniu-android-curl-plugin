@@ -13,20 +13,10 @@ Qiniu Android SDK 插件，提供对 libcurl 集成功能
 
 ### 运行环境
 
-| Qiniu SDK 版本 | 最低 Android版本   |       依赖库版本           |
+| 本插件版本 | 最低 Android版本   |       依赖库版本           |
 |------------ |-----------------|------------------------|
-|  7.0.*        |  Android 2.2+     | qiniu-android-sdk v8.5.0|
+|  1.0.*        |  Android 2.2+     | qiniu-android-sdk v8.5.0|
 
-### 注意
-* 推荐使用最新版：8.5.0
-* 7.6.2 ~ 8.3.2 AndroidNetwork.getMobileDbm()可以获取手机信号强度，需要如下权限(API>=18时生效)
-```
-  <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-```
-* 从7.5.0开始增加了DNS预取和缓存策略，减少dns解析错误
-* 如果可以明确 区域 的话，最好指定固定区域，这样可以少一步网络请求，少一步出错的可能。
-* 如果使用 Android 4.x ，对应 okhttp 版本请调整至 3.12.+
 
 ### 直接安装
 将 sdk jar 文件 复制到项目中去，[jar包下载地址](http://search.maven.org/#search%7Cga%7C1%7Ccom%2Fqiniu%2Fqiniu-android-curl-plugin) , 下载对应的jar包，以及搜索下载对应的依赖库
