@@ -15,7 +15,7 @@ Qiniu Android SDK 插件，提供对 libcurl 集成功能
 
 | 本插件版本 | 最低 Android版本   |       依赖库版本           |
 |------------ |-----------------|------------------------|
-|  1.0.*        |  Android 2.2+     | qiniu-android-sdk v8.5.0|
+|  1.0.*        |  Android 5.1+     | qiniu-android-sdk v8.5.0|
 
 
 ### 直接安装
