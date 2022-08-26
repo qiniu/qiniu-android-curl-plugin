@@ -3,6 +3,8 @@ package com.qiniu.client.curl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import com.qiniu.android.http.ResponseInfo;
 import com.qiniu.android.http.metrics.UploadSingleRequestMetrics;
 import com.qiniu.android.http.request.IRequestClient;
@@ -12,8 +14,9 @@ import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
-
+@RunWith(AndroidJUnit4.class)
 public class CurlTest extends BaseTest {
 
     @Before
