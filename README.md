@@ -27,10 +27,10 @@ Qiniu Android SDK 插件，提供对 libcurl 集成功能
 * Android Studio中添加dependencies 或者 在项目中添加maven依赖
 ```
 // 1. 直接导入
-implementation 'com.qiniu:qiniu-android-plugin:0.0.+'
+implementation 'com.qiniu:qiniu-android-plugin:1.0.+'
 
 // 2. 如果要修改 qiniu-android-sdk 依赖的版本，可采用以下方式（强烈建议使用七牛库依赖的 qiniu-android-sdk 版本）
-implementation ('com.qiniu:qiniu-android-plugin:0.0.+'){
+implementation ('com.qiniu:qiniu-android-plugin:1.0.+'){
     exclude (group: 'com.qiniu', module: 'qiniu-android-sdk')
 }
 implementation 'com.qiniu:qiniu-android-sdk:8.5.0' // 最低版本 8.5.0
@@ -38,6 +38,22 @@ implementation 'com.qiniu:qiniu-android-sdk:8.5.0' // 最低版本 8.5.0
 * 如果是 eclipse, 也可以直接添加依赖来处理。
 
 ## 使用方法
+
+**1).使用 CurlClient 作为 [七牛云存储 Android SDK](https://github.com/qiniu/android-sdk) 上传请求的 requestClient**
+```java
+import com.qiniu.android.storage.Configuration;
+import com.qiniu.android.storage.UploadManager;
+
+// @param caPath: SSL 证书本地路径；如果想自定义 CA 可设置此选项，此处为 CA 文件的本地路径。
+// 				  如果为定义则使用 SDK 内部提供的 CA 证书，证书来源：https://curl.se/ca/cacert.pem
+CurlClient client = new CurlClient(null);
+Configuration config = new Configuration.Builder()
+                .requestClient(client)
+                .build();
+UploadManager manager = new UploadManager(config);
+```
+
+**2).独立使用 CurlClient 发起 http 请求**
 ```java
 import com.qiniu.client.curl;
 import com.qiniu.android.http.ResponseInfo;
