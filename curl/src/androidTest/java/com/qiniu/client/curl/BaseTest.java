@@ -1,42 +1,18 @@
 package com.qiniu.client.curl;
 
-
-//import android.test.AndroidTestCase;
-
-import org.apache.http.params.HttpParams;
-import org.junit.After;
-import org.junit.Before;
-
 import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-//@RunWith(AndroidJUnit4.class)
 public class BaseTest {
 
     private long maxWaitTimestamp = 0;
-
-    @Before
-    public void setup() {
-        System.out.println("\n=== base test before");
-    }
-
-    @After
-    public void completed() {
-        System.out.println("=== base test completed");
-    }
-
-    public void a() {
-        HttpParams params = null;
-//        HttpClient client = new DefaultHttpClient()
-
-    }
 
     /**
      * waitCondition: 等待条件
      * maxWaitTime: 等待最大时长 单位-秒
      */
-    public void wait(WaitConditional waitConditional, float maxWaitTime) {
+    void wait(WaitConditional waitConditional, float maxWaitTime) {
 
         WaitConditional waitConditionalP = waitConditional;
         if (waitConditionalP == null) {
