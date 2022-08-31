@@ -45,8 +45,8 @@ import com.qiniu.android.storage.Configuration;
 import com.qiniu.android.storage.UploadManager;
 
 // @param caPath: SSL 证书本地路径；如果想自定义 CA 可设置此选项，此处为 CA 文件的本地路径。
-// 				  如果为定义则使用 SDK 内部提供的 CA 证书，证书来源：https://curl.se/ca/cacert.pem
-CurlClient client = new CurlClient(null);
+// 				  如果未定义（caPath 配置 null）则使用 SDK 内部提供的 CA 证书，证书来源：https://curl.se/ca/cacert.pem
+CurlClient client = new CurlClient(caPath);
 Configuration config = new Configuration.Builder()
                 .requestClient(client)
                 .build();
