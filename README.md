@@ -27,10 +27,11 @@ Qiniu Android SDK 插件，提供对 libcurl 集成功能
 * Android Studio中添加dependencies 或者 在项目中添加maven依赖
 ```
 // 1. 直接导入
-implementation 'com.qiniu:qiniu-android-plugin:1.0.+'
+// 移除 qiniu-android-sdk 依赖 : implementation 'com.qiniu:qiniu-android-sdk:x.x.+' 
+implementation 'com.qiniu:qiniu-android-curl-plugin:1.0.0'
 
 // 2. 如果要修改 qiniu-android-sdk 依赖的版本，可采用以下方式（强烈建议使用七牛库依赖的 qiniu-android-sdk 版本）
-implementation ('com.qiniu:qiniu-android-plugin:1.0.+'){
+implementation ('com.qiniu:qiniu-android-curl-plugin:1.0.0'){
     exclude (group: 'com.qiniu', module: 'qiniu-android-sdk')
 }
 implementation 'com.qiniu:qiniu-android-sdk:8.5.0' // 最低版本 8.5.0
